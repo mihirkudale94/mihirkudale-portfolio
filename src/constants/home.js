@@ -20,7 +20,7 @@ export const homeData = {
   },
   social: {
     linkedin: "https://www.linkedin.com/in/mihirkudale/",
-    github: "https://github.com/mihirkudale",
+    github: "https://github.com/mihirkudale94",
     email: "mailto:mihirkudale94@gmail.com",
   },
   image: {

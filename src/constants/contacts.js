@@ -22,7 +22,7 @@ export const contactConfig = {
     "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3783.1740533123913!2d73.80756411435893!3d18.507445387414057!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2bcc021c2aef7%3A0x5b2a57d6f5be514!2sKothrud%2C%20Pune%2C%20Maharashtra!5e0!3m2!1sen!2sin!4v1717171717171!5m2!1sen!2sin",
 
   socials: {
-    github: "https://github.com/mihirkudale",
+    github: "https://github.com/mihirkudale94",
     linkedin: "https://www.linkedin.com/in/mihirkudale/",
     email: `mailto:${_email}`,
   },

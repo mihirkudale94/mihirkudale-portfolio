@@ -201,7 +201,7 @@ export const Projects = () => {
           {/* GitHub CTA */}
           <div className="mt-16 text-center">
             <a
-              href="https://github.com/mihirkudale"
+              href="https://github.com/mihirkudale94"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-8 py-4 rounded-xl border-2 border-slate-200 text-slate-700 bg-white hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700 hover:shadow-md transition-all duration-300 font-bold text-base group"
