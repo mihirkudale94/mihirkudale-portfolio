@@ -12,10 +12,10 @@ export function ChatToggleButton({ onOpen, showNudge }) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.95 }}
             transition={{ type: "spring", stiffness: 400, damping: 25 }}
-            className="bg-slate-900 text-white text-xs font-semibold px-3.5 py-2 rounded-xl shadow-lg max-w-[180px] text-center leading-relaxed pointer-events-none"
+            className="relative bg-slate-900 text-white text-xs font-semibold px-3.5 py-2 rounded-xl shadow-lg max-w-[220px] text-center leading-relaxed pointer-events-none"
           >
             👋 Ask me about Mihir's work!
-            <div className="absolute bottom-[-5px] right-6 w-2.5 h-2.5 bg-slate-900 rotate-45" />
+            <div className="absolute -bottom-1.5 right-5 w-3 h-3 bg-slate-900 rotate-45 rounded-sm" />
           </motion.div>
         )}
       </AnimatePresence>

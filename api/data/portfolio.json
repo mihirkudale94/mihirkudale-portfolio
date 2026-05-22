@@ -1,13 +1,13 @@
 {
     "about": {
         "name": "Mihir Kudale",
-        "title": "Software Developer",
+        "title": "Data Scientist",
         "focus": "Data Analytics, Data Science, and AI Engineering",
-        "description": "Specializes in scalable analytics platforms, BI workflow automation, and intelligent applications that transform raw data into actionable business intelligence.",
-        "credentials": "Former Amazon Data Analyst and Software Developer - Data & AI in GovTech and 3× Microsoft Certified professional.",
+        "description": "I specialize in building scalable analytics platforms, automating BI workflows, and developing intelligent applications that transform raw data into actionable business intelligence.",
+        "credentials": "Ex-Amazon • Microsoft Certified: PL-300 • DP-100 • AI-102 • Open to opportunities",
         "location": "Kothrud, Pune, Maharashtra, India",
         "availability": "Available for on-site, remote, and freelance roles globally.",
-        "roles": "Data Analyst • Data Scientist • Data Engineer • AI Engineer",
+        "roles": "Data Scientist • Data Analyst • Data Engineer • AI Engineer",
         "badges": [
             "Ex-Amazon",
             "Microsoft Certified: PL-300 • DP-100 • AI-102",
@@ -23,118 +23,178 @@
     "education": [
         {
             "degree": "Master of Computer Applications (MCA)",
-            "institution": "MES Institute of Management & Career Courses (IMCC)",
+            "institution": "MES Institute of Management & Career Courses(IMCC)",
             "university": "Savitribai Phule Pune University",
             "location": "Pune, India",
-            "duration": "2020–2022"
+            "duration": "2020 – 2022"
         },
         {
             "degree": "Bachelors in Computer Applications (BCA)",
             "institution": "Yashwantrao Chavan Maharashtra Open University",
+            "university": null,
             "location": "Nashik, India",
-            "duration": "2017–2020"
+            "duration": "2017 – 2020"
         },
         {
             "degree": "Diploma in Electronics & Telecommunication Engineering",
             "institution": "MIT Polytechnic",
+            "university": null,
             "location": "Pune, India",
             "duration": "2015"
+        },
+        {
+            "degree": "Secondary School Certificate (SSC)",
+            "institution": "Symbiosis School",
+            "university": null,
+            "location": "Pune, India",
+            "duration": "2011"
         }
     ],
     "experience": [
         {
             "company": "Integrated Consultancy Services",
-            "role": "Software Developer - Data & AI",
             "location": "Pune, India",
-            "duration": "Aug 2024 – Nov 2025"
+            "roles": [
+                {
+                    "role": "Software Developer - Data & AI",
+                    "display": "Aug 2024 – Nov 2025",
+                    "tech": []
+                }
+            ]
         },
         {
             "company": "Amazon",
-            "role": "Data Analyst",
             "location": "Bengaluru, India",
-            "duration": "Aug 2023 – Jan 2024"
+            "roles": [
+                {
+                    "role": "Data Analyst",
+                    "display": "Aug 2023 – Jan 2024",
+                    "tech": []
+                }
+            ]
         },
         {
             "company": "iNeuron",
-            "role": "Data Scientist Intern",
             "location": "Bengaluru, India",
-            "duration": "Nov 2022 – Feb 2023"
+            "roles": [
+                {
+                    "role": "Data Scientist Intern",
+                    "display": "Nov 2022 – Feb 2023",
+                    "tech": []
+                }
+            ]
         },
         {
             "company": "The Sparks Foundation",
-            "role": "Data Science & Business Analytics Intern",
             "location": "Singapore (Remote)",
-            "duration": "Oct 2021 – Nov 2021"
+            "roles": [
+                {
+                    "role": "Data Science & Business Analytics Intern",
+                    "display": "Oct 2021 – Nov 2021",
+                    "tech": []
+                }
+            ]
         },
         {
             "company": "LetsGrowMore",
-            "role": "Data Science Intern",
             "location": "Pune, India",
-            "duration": "Sep 2021 – Oct 2021"
+            "roles": [
+                {
+                    "role": "Data Science Intern",
+                    "display": "Sep 2021 – Oct 2021",
+                    "tech": []
+                }
+            ]
         },
         {
             "company": "KPMG Data Analytics Consulting (Virtual Internship)",
-            "role": "Data Analyst Intern",
             "location": "Pune, India",
-            "duration": "Sep 2021 – Oct 2021"
+            "roles": [
+                {
+                    "role": "Data Analyst Intern",
+                    "display": "Sep 2021 – Oct 2021",
+                    "tech": []
+                }
+            ]
         },
         {
             "company": "SMC Infrastructures Pvt Ltd",
-            "role": "Project Coordinator",
             "location": "Mumbai, India",
-            "duration": "2018–2019"
+            "roles": [
+                {
+                    "role": "Project Coordinator",
+                    "display": "2018 – 2019",
+                    "tech": []
+                }
+            ]
         },
         {
             "company": "P.M Kudale & Associates",
-            "role": "Operations Manager",
             "location": "Pune, India",
-            "duration": "2015–2018"
+            "roles": [
+                {
+                    "role": "Operations Manager",
+                    "display": "2015 – 2018",
+                    "tech": []
+                }
+            ]
         }
     ],
     "certifications": [
         {
-            "title": "Power BI Data Analyst (PL-300)",
-            "issuer": "Microsoft"
+            "title": "Power BI Data Analyst",
+            "issuer": "Microsoft",
+            "link": "https://learn.microsoft.com/api/credentials/share/en-us/mihirkudale-8632/4797406F2E129071?sharingId=1A510CD64EFC3B52"
         },
         {
-            "title": "Azure Data Scientist Associate (DP-100)",
-            "issuer": "Microsoft"
+            "title": "Azure Data Scientist Associate",
+            "issuer": "Microsoft",
+            "link": "https://learn.microsoft.com/api/credentials/share/en-us/mihirkudale-8632/E11B6AD618E0D70F?sharingId=1A510CD64EFC3B52"
         },
         {
-            "title": "Azure AI Engineer Associate (AI-102)",
-            "issuer": "Microsoft"
+            "title": "Azure AI Engineer Associate",
+            "issuer": "Microsoft",
+            "link": "https://learn.microsoft.com/api/credentials/share/en-us/mihirkudale-8632/C18AD2464AE0C911?sharingId=1A510CD64EFC3B52"
         },
         {
             "title": "Data Science Professional Certificate",
-            "issuer": "IBM (Coursera)"
+            "issuer": "IBM (Coursera)",
+            "link": "https://www.coursera.org/account/accomplishments/specialization/certificate/VMVWAH6B7T7P"
         },
         {
             "title": "Masters in Full Stack Data Science Certificate",
-            "issuer": "iNeuron"
+            "issuer": "iNeuron",
+            "link": "https://learn.ineuron.ai/certificate/52243652-96a1-4cf7-bf15-0ae30b082bca"
         },
         {
             "title": "Google Data Analytics Professional Certificate",
-            "issuer": "Google (Coursera)"
+            "issuer": "Google (Coursera)",
+            "link": "https://www.coursera.org/account/accomplishments/specialization/certificate/ZTCEP3F9YFJC"
         },
         {
             "title": "Google Business Intelligence Professional Certificate",
-            "issuer": "Google (Coursera)"
+            "issuer": "Google (Coursera)",
+            "link": "https://www.coursera.org/account/accomplishments/specialization/certificate/NVDLHSKAWQWX"
         },
         {
             "title": "Google Project Management Professional Certificate",
-            "issuer": "Google (Coursera)"
+            "issuer": "Google (Coursera)",
+            "link": "https://www.coursera.org/account/accomplishments/specialization/certificate/ROOPN97OZK0A"
         },
         {
             "title": "Python Specialization",
-            "issuer": "University of Michigan (Coursera)"
+            "issuer": "University of Michigan (Coursera)",
+            "link": "https://www.coursera.org/account/accomplishments/specialization/certificate/S38GDYMQ6JLZ"
         },
         {
             "title": "Machine Learning",
-            "issuer": "Stanford University (Coursera)"
+            "issuer": "Stanford University (Coursera)",
+            "link": "https://www.coursera.org/account/accomplishments/certificate/G8FSBV9MX5VP"
         },
         {
             "title": "Generative AI",
-            "issuer": "DeepLearning.AI (Coursera)"
+            "issuer": "DeepLearning.AI (Coursera)",
+            "link": "https://www.coursera.org/account/accomplishments/certificate/9HAM443P49UR"
         }
     ],
     "skills": [
@@ -976,7 +1036,8 @@
                 "Python",
                 "Computer Vision"
             ],
-            "github": "https://github.com/mihirkudale94/Automated-Car-Parking-Detection"
+            "github": "https://github.com/mihirkudale94/Automated-Car-Parking-Detection",
+            "demo": ""
         },
         {
             "title": "E-KYC",
@@ -985,7 +1046,8 @@
                 "Python",
                 "Computer Vision"
             ],
-            "github": "https://github.com/mihirkudale94/VisionKYC-AI-Powered-Identity-Verification"
+            "github": "https://github.com/mihirkudale94/VisionKYC-AI-Powered-Identity-Verification",
+            "demo": ""
         },
         {
             "title": "Zomato Chatbot",
@@ -994,7 +1056,8 @@
                 "Python",
                 "Generative AI"
             ],
-            "github": "https://github.com/mihirkudale94/Zomato-Chatbot-Chainlit"
+            "github": "https://github.com/mihirkudale94/Zomato-Chatbot-Chainlit",
+            "demo": ""
         },
         {
             "title": "Source Code Analyzer",
@@ -1003,7 +1066,8 @@
                 "Python",
                 "Generative AI"
             ],
-            "github": "https://github.com/mihirkudale94/Source-Code-Analysis"
+            "github": "https://github.com/mihirkudale94/Source-Code-Analysis",
+            "demo": ""
         },
         {
             "title": "Microsoft Teams Auto-Reply Chatbot",
@@ -1015,7 +1079,8 @@
                 "n8n",
                 "Generative AI"
             ],
-            "github": ""
+            "github": "",
+            "demo": ""
         }
     ]
 }

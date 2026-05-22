@@ -1,29 +1,27 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 
 export function useAudio() {
   const [playingAudioId, setPlayingAudioId] = useState(null);
-  const audioRef = useRef(null);
+  const utteranceRef = useRef(null);
 
-  // Cleanup on unmount
+  // Cancel speech on unmount
   useEffect(() => {
     return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
+      window.speechSynthesis?.cancel();
     };
   }, []);
 
   const handleStopAudio = useCallback(() => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current = null;
-    }
+    window.speechSynthesis?.cancel();
+    utteranceRef.current = null;
     setPlayingAudioId(null);
   }, []);
 
   const handlePlayAudio = useCallback(
-    async (msgId, text) => {
+    (msgId, text) => {
+      if (!window.speechSynthesis) return;
+
+      // Toggle off if already playing this message
       if (playingAudioId === msgId) {
         handleStopAudio();
         return;
@@ -31,49 +29,28 @@ export function useAudio() {
 
       handleStopAudio();
 
-      try {
-        setPlayingAudioId(msgId);
+      const cleanText = text.replace(/[*#`_~[\]()]/g, "").trim();
+      if (!cleanText) return;
 
-        const cleanText = text.replace(/[*#`_~]/g, "").trim();
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      utterance.lang = "en-US";
+      utterance.rate = 1.0;
+      utterance.pitch = 1.0;
+      utterance.volume = 1.0;
 
-        // 10s timeout so a hung request doesn't block the UI
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000);
+      // Pick a natural English voice if available
+      const voices = window.speechSynthesis.getVoices();
+      const preferred = voices.find(
+        (v) => v.lang.startsWith("en") && v.localService && !v.name.includes("Zira")
+      ) || voices.find((v) => v.lang.startsWith("en"));
+      if (preferred) utterance.voice = preferred;
 
-        const response = await fetch("/api/tts", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: cleanText }),
-          signal: controller.signal,
-        });
+      utterance.onend = () => setPlayingAudioId(null);
+      utterance.onerror = () => setPlayingAudioId(null);
 
-        clearTimeout(timeoutId);
-
-        if (!response.ok) throw new Error("Failed to fetch audio stream");
-
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
-
-        const audio = new Audio(url);
-        audioRef.current = audio;
-
-        audio.onended = () => {
-          setPlayingAudioId(null);
-          URL.revokeObjectURL(url);
-        };
-
-        audio.onerror = () => {
-          setPlayingAudioId(null);
-          URL.revokeObjectURL(url);
-        };
-
-        await audio.play();
-      } catch (err) {
-        if (err.name !== "AbortError") {
-          console.error("Failed to play audio:", err);
-        }
-        setPlayingAudioId(null);
-      }
+      utteranceRef.current = utterance;
+      setPlayingAudioId(msgId);
+      window.speechSynthesis.speak(utterance);
     },
     [playingAudioId, handleStopAudio]
   );
