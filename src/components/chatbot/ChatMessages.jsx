@@ -6,9 +6,6 @@ export function ChatMessages({
   loading,
   streaming,
   slowResponse,
-  playingAudioId,
-  onPlayAudio,
-  onStopAudio,
   prefersReducedMotion,
 }) {
   const messagesEndRef = useRef(null);
@@ -30,13 +27,7 @@ export function ChatMessages({
       aria-atomic="false"
     >
       {messages.map((msg) => (
-        <ChatMessage
-          key={msg.id}
-          msg={msg}
-          playingAudioId={playingAudioId}
-          onPlayAudio={onPlayAudio}
-          onStopAudio={onStopAudio}
-        />
+        <ChatMessage key={msg.id} msg={msg} />
       ))}
 
       {loading && !streaming && (

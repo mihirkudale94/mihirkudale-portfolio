@@ -13,7 +13,6 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { chatbotConfig } from "../constants/chatbot";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
-import { useAudio } from "../hooks/useAudio";
 import { useChatMessages } from "../hooks/useChatMessages";
 import { ChatHeader } from "./chatbot/ChatHeader";
 import { ChatMessages } from "./chatbot/ChatMessages";
@@ -32,19 +31,10 @@ const initialMessages = [
 export function Chatbot() {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
-  const [showNudge, setShowNudge] = useState(false);
   const inputRef = useRef(null);
   const dialogRef = useRef(null);
 
-  // Show nudge tooltip after 8s of idle if chat is closed, hide forever once opened
-  useEffect(() => {
-    if (open) { setShowNudge(false); return; }
-    const timer = setTimeout(() => setShowNudge(true), 8000);
-    return () => clearTimeout(timer);
-  }, [open]);
-
   const prefersReducedMotion = usePrefersReducedMotion();
-  const { playingAudioId, handlePlayAudio, handleStopAudio } = useAudio();
   const { messages, loading, streaming, slowResponse, suggestions, sendMessage, handleSuggestionClick } =
     useChatMessages(initialMessages);
 
@@ -79,8 +69,7 @@ export function Chatbot() {
   const handleClose = useCallback(() => {
     setOpen(false);
     setInput("");
-    handleStopAudio();
-  }, [handleStopAudio]);
+  }, []);
 
   // Escape to close
   useEffect(() => {
@@ -115,9 +104,6 @@ export function Chatbot() {
               loading={loading}
               streaming={streaming}
               slowResponse={slowResponse}
-              playingAudioId={playingAudioId}
-              onPlayAudio={handlePlayAudio}
-              onStopAudio={handleStopAudio}
               prefersReducedMotion={prefersReducedMotion}
             />
             <ChatSuggestions
@@ -138,7 +124,7 @@ export function Chatbot() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {!open && <ChatToggleButton onOpen={() => setOpen(true)} showNudge={showNudge} />}
+        {!open && <ChatToggleButton onOpen={() => setOpen(true)} />}
       </AnimatePresence>
     </>
   );

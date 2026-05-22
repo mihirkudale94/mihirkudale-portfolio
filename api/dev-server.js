@@ -6,7 +6,6 @@
  */
 import express from 'express';
 import chatHandler from './chat.js';
-import ttsHandler from './tts.js';
 import vitalsHandler from './vitals.js';
 
 const app = express();
@@ -27,7 +26,6 @@ function vercelHandler(handler) {
 }
 
 app.all('/api/chat',   vercelHandler(chatHandler));
-app.all('/api/tts',    vercelHandler(ttsHandler));
 app.all('/api/vitals', vercelHandler(vitalsHandler));
 
 const PORT = 3001;

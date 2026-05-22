@@ -63,6 +63,7 @@ const WorkExperience = lazy(() => import("./components/sections/WorkExperience")
 const Education = lazy(() => import("./components/sections/Education"));
 const Skills = lazy(() => import("./components/sections/Skills"));
 const AboutMe = lazy(() => import("./components/sections/AboutMe"));
+const NotFound = lazy(() => import("./components/sections/NotFound"));
 
 // Loading fallback — clear, light-mode spinner
 const SectionLoader = () => (
@@ -77,13 +78,17 @@ const SectionLoader = () => (
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const location = useLocation();
 
   // Passive listener + startTransition for non-urgent scroll state
   useEffect(() => {
     const handleScroll = () => {
+      const scrolled = window.scrollY;
+      const total = document.documentElement.scrollHeight - window.innerHeight;
       startTransition(() => {
-        setShowScrollTop(window.scrollY > 600);
+        setShowScrollTop(scrolled > 600);
+        setScrollProgress(total > 0 ? (scrolled / total) * 100 : 0);
       });
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -109,6 +114,13 @@ function App() {
         <meta name="twitter:description" content={meta.description} />
         <link rel="canonical" href={`${SITE_URL}${location.pathname}`} />
       </Helmet>
+      {/* Scroll progress bar */}
+      <div
+        className="fixed top-0 left-0 z-[100] h-[3px] bg-gradient-to-r from-blue-500 to-violet-500 transition-all duration-75 ease-out"
+        style={{ width: `${scrollProgress}%` }}
+        aria-hidden="true"
+      />
+
       <ErrorBoundary>
         <Navbar menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
       </ErrorBoundary>
@@ -143,6 +155,7 @@ function App() {
           <Route path="/certifications" element={<Suspense fallback={<SectionLoader />}><Certifications /></Suspense>} />
           <Route path="/testimonials" element={<Suspense fallback={<SectionLoader />}><Testimonials /></Suspense>} />
           <Route path="/contact" element={<Suspense fallback={<SectionLoader />}><Contact /></Suspense>} />
+          <Route path="*" element={<Suspense fallback={<SectionLoader />}><NotFound /></Suspense>} />
         </Routes>
       </AnimatePresence>
 

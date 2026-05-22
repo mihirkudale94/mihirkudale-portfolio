@@ -1,19 +1,13 @@
 import { memo, Suspense, lazy } from "react";
-import { Volume2, Square } from "lucide-react";
 
-// Lazy-load ReactMarkdown so it doesn't bloat the main bundle
 const ReactMarkdown = lazy(() => import("react-markdown").then((m) => ({ default: m.default })));
 
-/**
- * Single chat message bubble, memoized so streaming token updates
- * only re-render the actively-streaming message, not the whole list.
- */
-export const ChatMessage = memo(function ChatMessage({ msg, playingAudioId, onPlayAudio, onStopAudio }) {
+export const ChatMessage = memo(function ChatMessage({ msg }) {
   const isUser = msg.role === "user";
 
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
-      <div className="flex flex-col max-w-[85%]">
+      <div className="max-w-[85%]">
         <div
           className={`rounded-[1.25rem] px-4 py-3 text-[15px] shadow-sm ${
             isUser
@@ -30,7 +24,6 @@ export const ChatMessage = memo(function ChatMessage({ msg, playingAudioId, onPl
                   <ReactMarkdown>{msg.content}</ReactMarkdown>
                 </Suspense>
               ) : (
-                // Empty streaming placeholder — blinking cursor
                 <span className="inline-block w-1.5 h-4 bg-blue-500 rounded-sm animate-pulse" />
               )}
               {msg.isStreaming && msg.content && (
@@ -39,29 +32,6 @@ export const ChatMessage = memo(function ChatMessage({ msg, playingAudioId, onPl
             </div>
           )}
         </div>
-
-        {/* TTS button — only on completed bot messages */}
-        {!isUser && !msg.isStreaming && msg.content && msg.content !== "Something went wrong. Please try again." && (
-          <button
-            type="button"
-            onClick={() =>
-              playingAudioId === msg.id ? onStopAudio() : onPlayAudio(msg.id, msg.content)
-            }
-            className={`p-1 mt-2 rounded-md border text-slate-500 hover:text-slate-800 transition-colors focus:outline-none ${
-              playingAudioId === msg.id
-                ? "bg-red-50 text-red-600 border-red-200 hover:text-red-700"
-                : "bg-slate-50 border-slate-100 hover:bg-slate-200"
-            }`}
-            title={playingAudioId === msg.id ? "Stop reading" : "Read aloud"}
-            aria-label={playingAudioId === msg.id ? "Stop reading" : "Read aloud"}
-          >
-            {playingAudioId === msg.id ? (
-              <Square className="w-3.5 h-3.5 fill-current" />
-            ) : (
-              <Volume2 className="w-3.5 h-3.5" />
-            )}
-          </button>
-        )}
       </div>
     </div>
   );

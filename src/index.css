@@ -44,7 +44,10 @@ body {
   font-family: "Space Grotesk", sans-serif;
   background: var(--bg-secondary);
   color: var(--text-primary);
-  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
 }
 
 /* CSS containment for sections */

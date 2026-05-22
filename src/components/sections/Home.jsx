@@ -7,12 +7,6 @@ import { MagneticButton } from "../ui/MagneticButton";
 import { TiltCard } from "../ui/TiltCard";
 import { InteractiveGlow } from "../ui/InteractiveGlow";
 
-const stats = [
-  { value: "3+", label: "Years Experience" },
-  { value: "30+", label: "Projects Built" },
-  { value: "10+", label: "Certifications" },
-];
-
 export const Home = () => {
   return (
     <section
