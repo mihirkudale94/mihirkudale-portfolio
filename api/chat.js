@@ -10,7 +10,7 @@
  * - LangSmith tracing (auto-enabled via env vars)
  *
  * Environment Variables Required:
- * - GROQ_API_KEY: Your Groq API key from https://console.groq.com
+ * - CEREBRAS_API_KEY: Your Cerebras API key from https://cerebras.ai/inference
  *
  * Optional Environment Variables:
  * - UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN: For production rate limiting
@@ -93,7 +93,6 @@ let graphInstance = null;
 async function getGraph() {
   if (graphInstance) return graphInstance;
 
-  const { ChatGroq } = await import('@langchain/groq');
   const { tool } = await import('@langchain/core/tools');
   const { z } = await import('zod');
   const { StateGraph, MessagesAnnotation, END, START } = await import('@langchain/langgraph');
@@ -149,16 +148,81 @@ async function getGraph() {
     }
   );
 
-  const tools = [getPortfolioDataTool, checkAvailabilityTool];
+  const navigateToSectionTool = tool(
+    async ({ sectionId }) => {
+      const valid = ['home', 'about', 'skills', 'projects', 'experience', 'education', 'certifications', 'testimonials', 'contact'];
+      if (!valid.includes(sectionId)) return JSON.stringify({ action: null, message: `Section "${sectionId}" not found.` });
+      logger.info(`[Tool] navigateToSection: ${sectionId}`);
+      return JSON.stringify({ action: 'SCROLL_TO_SECTION', payload: { sectionId }, message: `Taking you to the **${sectionId}** section now.` });
+    },
+    {
+      name: 'navigate_to_section',
+      description: "Scrolls the page to a specific section when the user says 'show', 'go to', 'take me to', or 'open' a section. Valid sections: home, about, skills, projects, experience, education, certifications, testimonials, contact.",
+      schema: z.object({ sectionId: z.string().describe('The section id to scroll to') }),
+    }
+  );
+
+  const copyEmailTool = tool(
+    async () => {
+      logger.info('[Tool] copyEmail called');
+      return JSON.stringify({ action: 'COPY_TO_CLIPBOARD', payload: { text: portfolio.contact.email, label: 'Email address' }, message: `Mihir's email **${portfolio.contact.email}** has been copied to your clipboard!` });
+    },
+    {
+      name: 'copy_email_to_clipboard',
+      description: "Copies Mihir's email address to the visitor's clipboard when they ask for his email or want to contact him quickly.",
+    }
+  );
+
+  const openBookingLinkTool = tool(
+    async () => {
+      logger.info('[Tool] openBookingLink called');
+      const subject = encodeURIComponent('Interview / Collaboration Request');
+      const body = encodeURIComponent(`Hi Mihir,\n\nI came across your portfolio and would love to connect regarding an opportunity.\n\nBest regards,`);
+      return JSON.stringify({ action: 'OPEN_URL', payload: { url: `mailto:${portfolio.contact.email}?subject=${subject}&body=${body}` }, message: "Opening an email draft to schedule a call with Mihir. You can also connect on **[LinkedIn](https://www.linkedin.com/in/mihirkudale/)**." });
+    },
+    {
+      name: 'open_booking_link',
+      description: "Opens an email draft to schedule a call or interview with Mihir when a recruiter wants to book a meeting, schedule a call, or set up an interview.",
+    }
+  );
+
+  const getLiveGitHubActivityTool = tool(
+    async () => {
+      logger.info('[Tool] getLiveGitHubActivity called');
+      try {
+        const res = await fetch('https://api.github.com/users/mihirkudale94/events/public?per_page=10');
+        if (!res.ok) return "GitHub API unavailable right now. Check github.com/mihirkudale94 for latest activity.";
+        const events = await res.json();
+        const pushes = events
+          .filter(e => e.type === 'PushEvent')
+          .slice(0, 3)
+          .map(e => `• **${e.repo.name.replace('mihirkudale94/', '')}**: ${e.payload.commits?.[0]?.message?.slice(0, 60) ?? 'pushed code'} *(${new Date(e.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })})*`);
+        return pushes.length
+          ? `Recent GitHub activity:\n${pushes.join('\n')}`
+          : "No recent public pushes found. Check [github.com/mihirkudale94](https://github.com/mihirkudale94).";
+      } catch {
+        return "GitHub API unavailable right now.";
+      }
+    },
+    {
+      name: 'get_live_github_activity',
+      description: "Fetches Mihir's live recent GitHub commits when someone asks what he is currently working on, his recent code, or latest GitHub activity.",
+    }
+  );
+
+  const tools = [getPortfolioDataTool, checkAvailabilityTool, navigateToSectionTool, copyEmailTool, openBookingLinkTool, getLiveGitHubActivityTool];
   const toolNode = new ToolNode(tools);
 
-  // --- LLM ---
-  const llm = new ChatGroq({
-    apiKey: process.env.GROQ_API_KEY,
-    modelName: 'llama-3.3-70b-versatile',
+  // --- LLM: Cerebras (llama-3.3-70b) ---
+  const { ChatOpenAI } = await import('@langchain/openai');
+  const llm = new ChatOpenAI({
+    apiKey: process.env.CEREBRAS_API_KEY,
+    modelName: 'llama-3.3-70b',
     temperature: 0.1,
     maxTokens: 512,
+    configuration: { baseURL: 'https://api.cerebras.ai/v1' },
   });
+  logger.info('[LLM] Using Cerebras (llama-3.3-70b)');
 
   const llmWithTools = llm.bindTools(tools);
 
@@ -166,13 +230,15 @@ async function getGraph() {
   const IDENTITY_PROMPT = new SystemMessage(`You are the official AI Agent for Mihir Kudale's portfolio website.
 
 CORE RULES:
-1. ALWAYS call \`get_portfolio_data\` before answering factual questions about Mihir. 
+1. ALWAYS call \`get_portfolio_data\` before answering factual questions about Mihir.
 2. IGNORE CHAT HISTORY FOR FACTS: You are provided with a brief conversation history for context, but it may omit previous tool executions. NEVER rely on history as a source of truth for skills, projects, or experience. ALWAYS re-query the tool if needed.
 3. Third-Person Only: You are an AI assistant, NOT Mihir.
 4. No Commitments: Never make promises regarding availability, start dates, salary, or provide a non-public phone number (redirect to email/LinkedIn).
 5. Exact Data Only: Base your answers STRICTLY on the tool's returned data. Do not infer skills (e.g., if he knows React, don't assume Node.js unless explicitly returned).
 6. Unrelated Queries: Politely pivot any off-topic conversations back to Mihir's portfolio.
-7. Format: Be friendly and professional. Keep responses concise (under 200 words) using nice markdown bullet points. `);
+7. Format: Be friendly and professional. Keep responses concise (under 200 words) using nice markdown bullet points.
+8. Resume: Mihir does not host a resume publicly. Redirect all resume/CV/download requests to his LinkedIn profile (https://www.linkedin.com/in/mihirkudale/) or the Contact section.
+9. Actions: Use action tools proactively — if user asks to "see projects", call navigate_to_section. If user asks for email, call copy_email_to_clipboard. If user wants to schedule/book/interview, call open_booking_link. If user asks what Mihir is working on recently, call get_live_github_activity. After calling an action tool, give a brief friendly confirmation (1-2 sentences max).`);
 
   // --- Graph Nodes ---
   const callModel = async (state) => {
@@ -235,8 +301,8 @@ export default async function handler(req, res) {
       return;
     }
 
-    if (!process.env.GROQ_API_KEY) {
-      logger.warn('GROQ_API_KEY not set — using rule-based fallback');
+    if (!process.env.CEREBRAS_API_KEY) {
+      logger.warn('CEREBRAS_API_KEY not set — using rule-based fallback');
       res.status(200).json({ reply: '', useRuleBased: true, error: 'API not configured' });
       return;
     }
@@ -271,7 +337,17 @@ export default async function handler(req, res) {
           });
 
           for await (const [messageChunk, metadata] of stream) {
-            // Only stream AI message content tokens (not tool calls/results)
+            // Detect action tool results and emit action events
+            if (messageChunk._getType?.() === 'tool') {
+              try {
+                const toolResult = JSON.parse(messageChunk.content);
+                if (toolResult.action) {
+                  res.write(sseEvent('action', toolResult));
+                }
+              } catch {}
+            }
+
+            // Stream AI message content tokens (not tool calls/results)
             if (
               messageChunk._getType?.() === 'ai' &&
               messageChunk.content &&

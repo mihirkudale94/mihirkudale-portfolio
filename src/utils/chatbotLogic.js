@@ -171,7 +171,7 @@ const intents = [
   {
     keywords: ["resume", "cv", "download", "pdf"],
     response: () =>
-      `For ${name}'s resume or CV, please reach out directly via **email** (${email}) or connect on **LinkedIn** ([Profile](${linkedin})). You can also review the **About**, **Experience**, and **Skills** sections on this site for a comprehensive overview.`,
+      `${name} doesn't host a resume publicly. The best way to review his full profile is on **[LinkedIn](${linkedin})** — it has his complete experience, certifications, and recommendations. You can also explore this portfolio site section by section!`,
   },
 ];
 
@@ -280,7 +280,7 @@ export async function getChatbotReplyAsync(userMessage, conversationHistory = []
       if (data.useRuleBased || !data.reply) {
         return getDefaultReply(normalized);
       }
-      return { reply: data.reply, source: data.source || 'api' };
+      return { reply: data.reply, source: data.source || 'api', action: null };
 
     } catch (apiError) {
       if (apiError.name === 'AbortError') {
@@ -309,6 +309,7 @@ async function consumeSSEStream(response, onToken) {
   let buffer = '';
   let fullContent = '';
   let source = 'api';
+  let pendingAction = null;
 
   try {
     while (true) {
@@ -335,6 +336,10 @@ async function consumeSSEStream(response, onToken) {
                 fullContent += data.content;
                 onToken(data.content);
                 break;
+              case 'action':
+                // Store action to be executed by the frontend
+                pendingAction = data;
+                break;
               case 'guardrail':
                 // Replace entire content with safe version
                 fullContent = data.content;
@@ -357,11 +362,11 @@ async function consumeSSEStream(response, onToken) {
       }
     }
 
-    return { reply: fullContent, source };
+    return { reply: fullContent, source, action: pendingAction };
   } catch (err) {
     // If we got partial content, return it; otherwise throw
     if (fullContent.length > 0) {
-      return { reply: fullContent, source: 'api' };
+      return { reply: fullContent, source: 'api', action: pendingAction };
     }
     throw err;
   }

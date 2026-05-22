@@ -2,6 +2,27 @@ import { useState, useRef, useCallback } from "react";
 import { chatbotConfig } from "../constants/chatbot";
 import { getChatbotReplyAsync } from "../utils/chatbotLogic";
 
+function executeAction(action) {
+  if (!action?.action) return;
+  switch (action.action) {
+    case 'SCROLL_TO_SECTION': {
+      const el = document.getElementById(action.payload?.sectionId);
+      el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      break;
+    }
+    case 'COPY_TO_CLIPBOARD': {
+      navigator.clipboard?.writeText(action.payload?.text ?? '').catch(() => {});
+      break;
+    }
+    case 'OPEN_URL': {
+      if (action.payload?.url) window.open(action.payload.url, '_blank', 'noopener,noreferrer');
+      break;
+    }
+    default:
+      break;
+  }
+}
+
 function nextMessageId() {
   return `msg-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
@@ -62,7 +83,7 @@ export function useChatMessages(initialMessages) {
     setStreaming(true);
 
     try {
-      const { reply, source } = await getChatbotReplyAsync(
+      const { reply, source, action } = await getChatbotReplyAsync(
         text,
         conversationHistory,
         (token, fullReplacement) => {
@@ -79,6 +100,8 @@ export function useChatMessages(initialMessages) {
           );
         }
       );
+
+      if (action) executeAction(action);
 
       setMessages((prev) =>
         prev.map((msg) => {

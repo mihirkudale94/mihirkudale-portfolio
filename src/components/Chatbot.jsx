@@ -32,8 +32,16 @@ const initialMessages = [
 export function Chatbot() {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
+  const [showNudge, setShowNudge] = useState(false);
   const inputRef = useRef(null);
   const dialogRef = useRef(null);
+
+  // Show nudge tooltip after 8s of idle if chat is closed, hide forever once opened
+  useEffect(() => {
+    if (open) { setShowNudge(false); return; }
+    const timer = setTimeout(() => setShowNudge(true), 8000);
+    return () => clearTimeout(timer);
+  }, [open]);
 
   const prefersReducedMotion = usePrefersReducedMotion();
   const { playingAudioId, handlePlayAudio, handleStopAudio } = useAudio();
@@ -130,7 +138,7 @@ export function Chatbot() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {!open && <ChatToggleButton onOpen={() => setOpen(true)} />}
+        {!open && <ChatToggleButton onOpen={() => setOpen(true)} showNudge={showNudge} />}
       </AnimatePresence>
     </>
   );
