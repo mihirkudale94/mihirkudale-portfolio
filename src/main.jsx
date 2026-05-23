@@ -10,6 +10,7 @@ import { onCLS, onINP, onLCP, onFCP, onTTFB } from "web-vitals";
 const reportWebVitals = ({ name, value, rating, id }) => {
   if (import.meta.env.DEV) {
     console.log(`[Web Vital] ${name}: ${Math.round(value)}ms (${rating})`);
+    return;
   }
   const payload = JSON.stringify({ name, value, rating, id });
   navigator.sendBeacon("/api/vitals", new Blob([payload], { type: "application/json" }));

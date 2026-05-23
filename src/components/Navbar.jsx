@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
+import logo from "../assets/logo.png";
 
 export const Navbar = ({ menuOpen, setMenuOpen }) => {
   const location = useLocation();
@@ -55,7 +56,7 @@ export const Navbar = ({ menuOpen, setMenuOpen }) => {
               aria-label="Mihir Kudale home"
             >
               <img
-                src="https://i.postimg.cc/gjnbb9xF/80c8c743-9757-4139-b053-b2b33bce6626.png"
+                src={logo}
                 alt="Mihir Kudale Logo"
                 className="h-8 w-auto transition-transform duration-300 group-hover:scale-105"
               />
@@ -126,7 +127,7 @@ export const Navbar = ({ menuOpen, setMenuOpen }) => {
             }`}
         >
           <nav className="flex flex-col gap-1">
-            {menuItems.map((item, index) => (
+            {menuItems.map((item) => (
               <Link
                 key={item.label}
                 to={item.path}
@@ -135,7 +136,6 @@ export const Navbar = ({ menuOpen, setMenuOpen }) => {
                   ? "text-blue-600 bg-blue-50 border border-blue-100"
                   : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                   }`}
-                style={{ animationDelay: `${index * 40}ms` }}
               >
                 {item.label}
               </Link>

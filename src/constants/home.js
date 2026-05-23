@@ -1,4 +1,5 @@
-// src/constants/home.js
+import profilePhoto from "../assets/profile.png";
+
 export const homeData = {
   name: "Mihir Kudale",
   roles: "Data Scientist • Data Analyst • Data Engineer • AI Engineer",
@@ -24,7 +25,7 @@ export const homeData = {
     email: "mailto:mihirkudale94@gmail.com",
   },
   image: {
-    src: "https://iili.io/qd8GmXt.png",
+    src: profilePhoto,
     alt: "Portrait of Mihir Kudale",
     width: 420,
     height: 520,

@@ -1,8 +1,3 @@
-/**
- * Structured JSON logger for Vercel serverless functions.
- * Vercel captures stdout/stderr in production logs — structured JSON
- * makes them searchable and filterable in the dashboard.
- */
 function log(level, message, data = {}) {
   const entry = JSON.stringify({
     level,

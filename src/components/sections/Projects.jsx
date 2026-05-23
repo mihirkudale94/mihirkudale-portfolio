@@ -1,15 +1,10 @@
-// src/components/sections/Projects.jsx
 import { useState } from "react";
-import PropTypes from "prop-types";
 import { FaGithub, FaExternalLinkAlt } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import { allProjects, techFilters, techDescriptions } from "../../constants/projects";
 import { TiltCard } from "../ui/TiltCard";
 
 const MAX_VISIBLE_TAGS = 4;
-
-const FallbackReveal = ({ children }) => <>{children}</>;
-FallbackReveal.propTypes = { children: PropTypes.node.isRequired };
 
 export const Projects = () => {
   const [activeTech, setActiveTech] = useState("All");
@@ -24,9 +19,6 @@ export const Projects = () => {
       project.description.toLowerCase().includes(query);
     return matchesTech && matchesSearch;
   });
-
-  // Show live demo link for any project that has a valid demo URL
-  const shouldShowLiveDemo = (demoUrl) => Boolean(demoUrl && demoUrl.trim() !== "");
 
   return (
     <section
@@ -43,7 +35,7 @@ export const Projects = () => {
         className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-slate-100 blur-[100px] pointer-events-none"
       />
 
-      <FallbackReveal>
+      <>
         <div className="mx-auto w-full px-5 sm:px-6 lg:px-8 max-w-screen-xl relative z-10">
           {/* Header */}
           <div className="text-center mb-16 space-y-3">
@@ -113,8 +105,8 @@ export const Projects = () => {
             <AnimatePresence mode="popLayout">
               {filteredProjects.map((project, index) => {
                 const stack = project.stack ?? [];
-                const showLive = shouldShowLiveDemo(project.demo);
-                const hasGithub = Boolean(project.github && project.github.trim() !== "");
+                const showLive = Boolean(project.demo?.trim());
+                const hasGithub = Boolean(project.github?.trim());
 
                 return (
                   <motion.div
@@ -212,7 +204,7 @@ export const Projects = () => {
             </a>
           </div>
         </div>
-      </FallbackReveal>
+      </>
     </section>
   );
 };

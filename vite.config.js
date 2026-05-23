@@ -15,14 +15,12 @@ export default defineConfig({
       threshold: 1024, // Only compress files > 1KB
     }),
   ],
-  base: "./",
+  base: "/",
   server: {
-    // Proxy /api requests to Vercel Functions in development
     proxy: {
       '/api': {
         target: 'http://localhost:3001',
         changeOrigin: true,
-        rewrite: (path) => path,
       }
     }
   },

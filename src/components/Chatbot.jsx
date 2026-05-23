@@ -3,7 +3,6 @@
  *
  * Hooks:
  *   useChatMessages  — message state, send logic, suggestions
- *   useAudio         — TTS playback
  *   usePrefersReducedMotion — accessibility
  *
  * Sub-components (src/components/chatbot/):
@@ -20,12 +19,8 @@ import { ChatSuggestions } from "./chatbot/ChatSuggestions";
 import { ChatInput } from "./chatbot/ChatInput";
 import { ChatToggleButton } from "./chatbot/ChatToggleButton";
 
-function nextMessageId() {
-  return `msg-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-}
-
 const initialMessages = [
-  { id: nextMessageId(), role: "bot", content: chatbotConfig.welcomeMessage },
+  { id: "msg-welcome", role: "bot", content: chatbotConfig.welcomeMessage },
 ];
 
 export function Chatbot() {

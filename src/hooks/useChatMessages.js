@@ -15,7 +15,8 @@ function executeAction(action) {
       break;
     }
     case 'OPEN_URL': {
-      if (action.payload?.url) window.open(action.payload.url, '_blank', 'noopener,noreferrer');
+      const url = action.payload?.url;
+      if (url && url.startsWith('https://')) window.open(url, '_blank', 'noopener,noreferrer');
       break;
     }
     default:

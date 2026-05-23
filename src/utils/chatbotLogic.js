@@ -310,12 +310,20 @@ async function consumeSSEStream(response, onToken) {
   let fullContent = '';
   let source = 'api';
   let pendingAction = null;
+  let inactivityTimer = null;
+
+  const resetInactivityTimer = () => {
+    clearTimeout(inactivityTimer);
+    inactivityTimer = setTimeout(() => reader.cancel(), 15000);
+  };
 
   try {
+    resetInactivityTimer();
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
 
+      resetInactivityTimer();
       buffer += decoder.decode(value, { stream: true });
 
       // Parse SSE events from buffer
@@ -362,9 +370,10 @@ async function consumeSSEStream(response, onToken) {
       }
     }
 
+    clearTimeout(inactivityTimer);
     return { reply: fullContent, source, action: pendingAction };
   } catch (err) {
-    // If we got partial content, return it; otherwise throw
+    clearTimeout(inactivityTimer);
     if (fullContent.length > 0) {
       return { reply: fullContent, source: 'api', action: pendingAction };
     }
@@ -385,21 +394,3 @@ function getDefaultReply(normalized) {
   return { reply: FALLBACK_REPLY, source: 'rule-based' };
 }
 
-/**
- * Synchronous fallback for backward compatibility (rule-based only)
- * @deprecated Use getChatbotReplyAsync instead
- */
-export function getChatbotReply(userMessage) {
-  try {
-    const normalized = normalizeInput(userMessage);
-    if (!normalized) return EMPTY_INPUT_REPLY;
-
-    for (const { keywords, response } of intents) {
-      const matched = keywords.some((kw) => matches(normalized, kw));
-      if (matched) return response();
-    }
-    return FALLBACK_REPLY;
-  } catch {
-    return "Something went wrong on my side. Please try again or use the Contact section.";
-  }
-}

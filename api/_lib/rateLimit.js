@@ -1,23 +1,23 @@
 /**
  * Production-grade Rate Limiter
- * 
+ *
  * Uses Upstash Redis (sliding window) when configured,
  * falls back to in-memory Map for local dev.
- * 
+ *
  * Environment Variables (optional):
  * - UPSTASH_REDIS_REST_URL
  * - UPSTASH_REDIS_REST_TOKEN
  */
 
 let redisClient = null;
+let redisInitialized = false;
 
 const RATE_LIMIT = { maxRequests: 30, windowMs: 60_000 };
 
-/**
- * Lazily initialize Redis client (only when env vars are present).
- */
 async function getRedis() {
-    if (redisClient !== undefined && redisClient !== null) return redisClient;
+    if (redisInitialized) return redisClient;
+
+    redisInitialized = true;
 
     if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
         try {
@@ -27,15 +27,13 @@ async function getRedis() {
                 token: process.env.UPSTASH_REDIS_REST_TOKEN,
             });
             console.log('[RateLimit] Using Upstash Redis');
-            return redisClient;
         } catch (err) {
             console.warn('[RateLimit] Upstash Redis init failed, falling back to in-memory:', err.message);
             redisClient = null;
         }
-    } else {
-        redisClient = null;
     }
-    return null;
+
+    return redisClient;
 }
 
 // In-memory fallback (only effective within a single serverless instance)
@@ -64,7 +62,6 @@ async function redisRateLimit(redis, clientId) {
     const windowStart = now - RATE_LIMIT.windowMs;
 
     try {
-        // Pipeline: remove old entries, add current, count, set expiry
         const pipe = redis.pipeline();
         pipe.zremrangebyscore(key, 0, windowStart);
         pipe.zadd(key, { score: now, member: `${now}-${Math.random()}` });
@@ -72,12 +69,12 @@ async function redisRateLimit(redis, clientId) {
         pipe.expire(key, Math.ceil(RATE_LIMIT.windowMs / 1000));
 
         const results = await pipe.exec();
-        const count = results[2]; // zcard result
+        const count = results[2];
 
         return count > RATE_LIMIT.maxRequests;
     } catch (err) {
         console.error('[RateLimit] Redis error, allowing request:', err.message);
-        return false; // Fail open — don't block users on Redis errors
+        return false;
     }
 }
 

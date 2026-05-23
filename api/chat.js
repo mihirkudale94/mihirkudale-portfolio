@@ -23,8 +23,8 @@ const require = createRequire(import.meta.url);
 // Load real portfolio data at startup
 const portfolio = require('./data/portfolio.json');
 
-import { isRateLimited } from './lib/rateLimit.js';
-import { logger } from './lib/logger.js';
+import { isRateLimited } from './_lib/rateLimit.js';
+import { logger } from './_lib/logger.js';
 
 // --- Input Sanitization ---
 function sanitizeInput(text) {

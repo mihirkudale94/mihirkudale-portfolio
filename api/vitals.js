@@ -3,7 +3,7 @@
  * Receives beacon from the frontend and logs structured metrics
  * visible in Vercel production logs.
  */
-import { logger } from './lib/logger.js';
+import { logger } from './_lib/logger.js';
 
 export default function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', process.env.ALLOWED_ORIGIN || '*');

@@ -6,7 +6,7 @@ import { allProjects } from '../src/constants/projects.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const jsonPath = path.join(__dirname, 'data', 'portfolio.json');
+const jsonPath = path.join(__dirname, '../api/data', 'portfolio.json');
 
 // Read existing JSON
 const rawData = fs.readFileSync(jsonPath, 'utf-8');

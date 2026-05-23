@@ -13,7 +13,7 @@ import { allProjects } from '../src/constants/projects.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const jsonPath = path.join(__dirname, 'data', 'portfolio.json');
+const jsonPath = path.join(__dirname, '../api/data', 'portfolio.json');
 
 console.log('--- Syncing Frontend Data to Backend LLM ---');
 

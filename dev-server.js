@@ -5,8 +5,8 @@
  * NOT used in production; Vercel handles routing there via vercel.json.
  */
 import express from 'express';
-import chatHandler from './chat.js';
-import vitalsHandler from './vitals.js';
+import chatHandler from './api/chat.js';
+import vitalsHandler from './api/vitals.js';
 
 const app = express();
 app.use(express.json());

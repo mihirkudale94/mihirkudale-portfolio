@@ -1,8 +1,10 @@
 import React, { useRef } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 
 export const TiltCard = ({ children, className = "" }) => {
     const ref = useRef(null);
+    const prefersReducedMotion = usePrefersReducedMotion();
 
     const x = useMotionValue(0);
     const y = useMotionValue(0);
@@ -10,22 +12,14 @@ export const TiltCard = ({ children, className = "" }) => {
     const mouseXSpring = useSpring(x);
     const mouseYSpring = useSpring(y);
 
-    // Rotate based on mouse position relative to the center of the card
     const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["15deg", "-15deg"]);
     const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-15deg", "15deg"]);
 
     const handleMouseMove = (e) => {
-        if (!ref.current) return;
+        if (!ref.current || prefersReducedMotion) return;
         const rect = ref.current.getBoundingClientRect();
-        const width = rect.width;
-        const height = rect.height;
-
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
-
-        const xPct = mouseX / width - 0.5;
-        const yPct = mouseY / height - 0.5;
-
+        const xPct = (e.clientX - rect.left) / rect.width - 0.5;
+        const yPct = (e.clientY - rect.top) / rect.height - 0.5;
         x.set(xPct);
         y.set(yPct);
     };
@@ -40,11 +34,7 @@ export const TiltCard = ({ children, className = "" }) => {
             ref={ref}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
-            style={{
-                rotateX,
-                rotateY,
-            }}
-            // Use perspective on the element to give the rotation a 3D look
+            style={prefersReducedMotion ? {} : { rotateX, rotateY }}
             className={`relative transform-gpu perspective-[1000px] ${className}`}
         >
             {children}
