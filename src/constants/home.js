@@ -1,5 +1,3 @@
-import profilePhoto from "../assets/profile.png";
-
 export const homeData = {
   name: "Mihir Kudale",
   roles: "Data Scientist • Data Analyst • Data Engineer • AI Engineer",
@@ -25,7 +23,7 @@ export const homeData = {
     email: "mailto:mihirkudale94@gmail.com",
   },
   image: {
-    src: profilePhoto,
+    src: "/profile.png",
     alt: "Portrait of Mihir Kudale",
     width: 420,
     height: 520,
