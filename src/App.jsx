@@ -83,9 +83,8 @@ function App() {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("theme");
       if (saved === "light" || saved === "dark") return saved;
-      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
     }
-    return "light";
+    return "light"; // Hard default to light mode (white) for new visitors
   });
   const location = useLocation();
 
