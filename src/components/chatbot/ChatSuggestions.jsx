@@ -1,12 +1,12 @@
-const INITIAL_SUGGESTIONS = ["Why hire me?", "Key Projects & Metrics", "Certifications", "Contact"];
+const DEFAULT_SUGGESTIONS = ["Why hire me?", "Key Projects & Metrics", "Certifications", "Contact"];
 
-export function ChatSuggestions({ loading, suggestions, messageCount, onSuggestionClick }) {
+export function ChatSuggestions({ loading, suggestions, initialSuggestions, messageCount, onSuggestionClick }) {
   const showContextual = !loading && suggestions.length > 0;
   const showInitial = !loading && suggestions.length === 0 && messageCount <= 1;
 
   if (!showContextual && !showInitial) return null;
 
-  const items = showContextual ? suggestions : INITIAL_SUGGESTIONS;
+  const items = showContextual ? suggestions : (initialSuggestions || DEFAULT_SUGGESTIONS);
   const label = showContextual ? "Ask next" : "Get started";
 
   return (

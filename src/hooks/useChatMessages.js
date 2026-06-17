@@ -41,7 +41,7 @@ function getFollowUpSuggestions(userText) {
   if (t.includes("education") || t.includes("degree") || t.includes("university"))
     return ["Microsoft Certifications", "Work experience?", "Technical Skills"];
   if (t.includes("contact") || t.includes("email") || t.includes("linkedin"))
-    return ["Download resume?", "Availability?", "View projects"];
+    return ["About me?", "Availability?", "View projects"];
   if (t.includes("certif"))
     return ["Microsoft Certifications", "What tools does he use?", "Work experience?"];
   return ["Why hire me?", "Key Projects & Metrics", "Certifications", "Contact"];
