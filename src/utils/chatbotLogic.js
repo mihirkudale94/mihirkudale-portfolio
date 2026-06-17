@@ -152,9 +152,9 @@ const intents = [
     keywords: ["why hire", "why hire me", "why hire mihir", "benefits", "reasons to hire", "why hire you"],
     response: () =>
       `Here are the top reasons to hire **${name}**:\n\n` +
-      `1. **FAANG Experience**: Former **Amazon Data Analyst** with hands-on experience in business intelligence, SQL query tuning, and large-scale data analytics.\n` +
+      `1. **Analytics & FAANG Impact**: Former **Amazon Data Analyst** with hands-on experience in business intelligence, SQL query tuning, and large-scale data analytics.\n` +
       `2. **Microsoft Certified Professional**: Holds DP-100 (Azure Data Scientist), PL-300 (Power BI Analyst), and AI-102 (Azure AI Engineer) certifications, proving enterprise cloud and AI competency.\n` +
-      `3. **Technical Versatility**: Proficient in the entire data and intelligence lifecycle — from **Data Engineering** (Spark, Kafka, Hadoop) and **Data Science & AI** (Python, Machine Learning, LLMs) to **Web Integration** (React, Node).\n` +
+      `3. **Technical Versatility**: Proficient in the entire data and intelligence lifecycle — from **Data Engineering** and **Data Science & AI** (Python, Machine Learning, LLMs) to **Web Integration** (React, Node).\n` +
       `4. **Strong Academic Foundation**: Holds an MCA (Master of Computer Applications) and BCA degree.\n\n` +
       `You can read more in the **About** and **Experience** sections, or connect directly via **[LinkedIn](${linkedin})**!`,
   },
