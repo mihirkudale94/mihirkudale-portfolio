@@ -149,7 +149,17 @@ const intents = [
       `${name} is a **${title}** focused on **${focus}**. ${aboutMeData.intro.description} ${aboutMeData.sections[1].content} Based in **${location}**. ${availability}`,
   },
   {
-    keywords: ["contact", "email", "hire", "reach", "get in touch", "linkedin", "github", "availability"],
+    keywords: ["why hire", "why hire me", "why hire mihir", "benefits", "reasons to hire", "why hire you"],
+    response: () =>
+      `Here are the top reasons to hire **${name}**:\n\n` +
+      `1. **FAANG Experience**: Former **Amazon Data Analyst** with hands-on experience in business intelligence, SQL query tuning, and large-scale data analytics.\n` +
+      `2. **Microsoft Certified Professional**: Holds DP-100 (Azure Data Scientist), PL-300 (Power BI Analyst), and AI-102 (Azure AI Engineer) certifications, proving enterprise cloud and AI competency.\n` +
+      `3. **Technical Versatility**: Proficient in the entire data lifecycle — from **Data Engineering** (Spark, Kafka, Hadoop) to **Data Science** (Python, Machine Learning) and **Web Integration** (React, Node).\n` +
+      `4. **Strong Academic Foundation**: Holds an MCA (Master of Computer Applications) and BCA degree.\n\n` +
+      `You can read more in the **About** and **Experience** sections, or connect directly via **[LinkedIn](${linkedin})**!`,
+  },
+  {
+    keywords: ["contact", "email", "reach", "get in touch", "linkedin", "github", "availability"],
     response: () =>
       `You can reach ${name} via:\n• **Email:** ${email}\n• **LinkedIn:** [Profile](${linkedin})\n• **GitHub:** [Profile](${github})\n\n${availability} Use the **Contact** section or the email link to start a conversation.`,
   },
