@@ -43,13 +43,13 @@ export const Navbar = ({ menuOpen, setMenuOpen, theme, setTheme }) => {
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.1 }}
-        className={`fixed z-50 transition-all duration-500 ${scrolled
-          ? "top-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-5xl rounded-full border border-glass-border bg-glass-bg backdrop-blur-xl shadow-lg px-2 md:px-6 py-1"
-          : "top-0 left-0 w-full border-b border-transparent bg-transparent py-4"
+        className={`fixed left-1/2 -translate-x-1/2 z-50 transition-[top,width,max-width,border-radius,background-color,border-color,box-shadow,padding] duration-300 ease-out backdrop-blur-xl ${scrolled
+          ? "top-4 w-[calc(100%-2rem)] max-w-5xl rounded-full border border-glass-border bg-glass-bg shadow-lg px-2 md:px-6 py-1"
+          : "top-0 w-full max-w-none rounded-none border-b border-transparent bg-transparent py-4 px-6"
           }`}
       >
         <div className="max-w-7xl mx-auto px-6">
-          <div className={`flex justify-between items-center transition-all duration-500 ${scrolled ? "h-12" : "h-16"}`}>
+          <div className={`flex justify-between items-center transition-[height] duration-300 ease-out ${scrolled ? "h-12" : "h-16"}`}>
             {/* Brand */}
             <Link
               to="/"
