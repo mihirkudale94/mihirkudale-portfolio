@@ -91,7 +91,7 @@ export function Chatbot() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="chatbot-title"
-            className="fixed bottom-24 right-6 z-[100] flex flex-col w-[min(380px,calc(100vw-3rem))] h-[min(540px,72vh)] rounded-[1.5rem] bg-white/95 backdrop-blur-2xl border border-slate-200 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] overflow-hidden"
+            className="fixed bottom-24 right-6 z-[100] flex flex-col w-[min(380px,calc(100vw-3rem))] h-[min(540px,72vh)] rounded-[1.5rem] bg-glass-bg backdrop-blur-2xl border border-glass-border shadow-[0_20px_60px_-15px_rgba(0,0,0,0.12)] overflow-hidden"
           >
             <ChatHeader onClose={handleClose} />
             <ChatMessages

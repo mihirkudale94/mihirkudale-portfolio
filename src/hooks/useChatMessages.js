@@ -30,19 +30,21 @@ function nextMessageId() {
 
 function getFollowUpSuggestions(userText) {
   const t = userText.toLowerCase();
+  if (t.includes("google") || t.includes("microsoft") || t.includes("hire") || t.includes("why"))
+    return ["Key Projects & Metrics", "Certifications", "Experience at Amazon?", "Technical Skills"];
   if (t.includes("skill") || t.includes("tech") || t.includes("stack"))
-    return ["Show Python projects", "Power BI dashboards", "Any ML experience?"];
+    return ["Show Python projects", "Power BI dashboards", "Microsoft Certifications"];
   if (t.includes("project") || t.includes("built") || t.includes("dashboard"))
-    return ["What tech stack?", "Any live demos?", "Experience at Amazon?"];
+    return ["What tech stack?", "Any live dashboards?", "Experience at Amazon?"];
   if (t.includes("experience") || t.includes("work") || t.includes("job") || t.includes("amazon"))
-    return ["What are his skills?", "Education background?", "Open to opportunities?"];
+    return ["Why hire me?", "Education background?", "Availability?"];
   if (t.includes("education") || t.includes("degree") || t.includes("university"))
-    return ["Certifications?", "Work experience?", "What are his skills?"];
-  if (t.includes("contact") || t.includes("hire") || t.includes("email") || t.includes("linkedin"))
+    return ["Microsoft Certifications", "Work experience?", "Technical Skills"];
+  if (t.includes("contact") || t.includes("email") || t.includes("linkedin"))
     return ["Download resume?", "Availability?", "View projects"];
   if (t.includes("certif"))
-    return ["What tools does he use?", "Any Microsoft certs?", "Work experience?"];
-  return ["Skills", "Projects", "Experience", "Contact"];
+    return ["Microsoft Certifications", "What tools does he use?", "Work experience?"];
+  return ["Why hire me?", "Key Projects & Metrics", "Certifications", "Contact"];
 }
 
 export function useChatMessages(initialMessages) {

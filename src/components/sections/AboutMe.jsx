@@ -6,12 +6,12 @@ const AboutMe = () => {
   return (
     <section
       id="about"
-      className="relative py-28 px-6 bg-white text-slate-900 overflow-hidden"
+      className="relative py-28 px-6 bg-bg-primary text-text-primary overflow-hidden transition-colors duration-300"
     >
       {/* Subtle background blob */}
       <div
         aria-hidden="true"
-        className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-slate-100 blur-[100px] pointer-events-none"
+        className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-bg-tertiary/20 blur-[100px] pointer-events-none"
       />
 
       <motion.div
@@ -29,24 +29,24 @@ const AboutMe = () => {
           }}
           className="text-center space-y-4"
         >
-          <p className="text-sm font-bold text-blue-600 tracking-widest uppercase">
+          <p className="text-sm font-bold text-accent-primary tracking-widest uppercase">
             Get to know me
           </p>
-          <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">
+          <h2 className="text-4xl md:text-5xl font-extrabold text-text-primary tracking-tight">
             {aboutMeData.heading}
           </h2>
 
-          <p className="text-lg md:text-xl leading-[1.85] text-slate-600 max-w-3xl mx-auto font-medium">
+          <p className="text-lg md:text-xl leading-[1.85] text-text-secondary max-w-3xl mx-auto font-medium">
             I'm{" "}
-            <span className="font-bold text-blue-600 animated-underline cursor-default">
+            <span className="font-bold text-accent-primary animated-underline cursor-default">
               {aboutMeData.intro.name}
             </span>
             , a {aboutMeData.intro.location}{" "}
-            <span className="font-bold text-slate-900 animated-underline cursor-default">
+            <span className="font-bold text-text-primary animated-underline cursor-default">
               {aboutMeData.intro.title}
             </span>{" "}
             with a strong focus on{" "}
-            <span className="font-bold text-violet-600 animated-underline cursor-default">
+            <span className="font-bold text-accent-secondary animated-underline cursor-default">
               {aboutMeData.intro.focus}
             </span>
             . {aboutMeData.intro.description}
@@ -63,14 +63,14 @@ const AboutMe = () => {
                 visible: { opacity: 1, scale: 1, y: 0, transition: { type: "spring", stiffness: 120, damping: 20 } },
               }}
               whileHover={{ y: -5 }}
-              className="glass-card p-8 space-y-4 border border-slate-100 bg-slate-50/50 group"
+              className="glass-card p-8 space-y-4 border border-glass-border bg-bg-secondary/45 group"
             >
               {/* Accent bar */}
-              <div className="h-1 w-12 rounded-full bg-blue-600 mb-2 group-hover:w-20 transition-all duration-500" />
-              <h3 className="text-2xl font-bold text-slate-900">
+              <div className="h-1 w-12 rounded-full bg-accent-primary mb-2 group-hover:w-20 transition-all duration-500" />
+              <h3 className="text-2xl font-bold text-text-primary">
                 {section.title}
               </h3>
-              <p className="text-base leading-[1.8] text-slate-600 font-medium">
+              <p className="text-base leading-[1.8] text-text-secondary font-medium">
                 {section.content}
               </p>
             </motion.div>

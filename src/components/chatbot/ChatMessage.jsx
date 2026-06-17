@@ -11,23 +11,23 @@ export const ChatMessage = memo(function ChatMessage({ msg }) {
         <div
           className={`rounded-[1.25rem] px-4 py-3 text-[15px] shadow-sm ${
             isUser
-              ? "bg-blue-600 text-white rounded-br-sm shadow-[0_4px_14px_rgba(37,99,235,0.2)]"
-              : "bg-white text-slate-700 rounded-bl-sm border border-slate-100/80 leading-relaxed font-medium"
+              ? "bg-accent-primary text-white rounded-br-sm shadow-[0_4px_14px_rgba(37,99,235,0.15)]"
+              : "bg-bg-primary text-text-secondary rounded-bl-sm border border-glass-border leading-relaxed font-medium"
           }`}
         >
           {isUser ? (
             <span>{msg.content}</span>
           ) : (
-            <div className="prose prose-sm max-w-none break-words [&_a]:break-all text-slate-700 font-medium leading-[1.6] [&_a]:text-blue-600 [&_a]:underline [&_strong]:text-slate-900 [&_strong]:font-bold">
+            <div className="prose prose-sm max-w-none break-words [&_a]:break-all text-text-secondary font-medium leading-[1.6] [&_a]:text-accent-primary [&_a]:underline [&_strong]:text-text-primary [&_strong]:font-bold">
               {msg.content ? (
                 <Suspense fallback={<span>{msg.content}</span>}>
                   <ReactMarkdown>{msg.content}</ReactMarkdown>
                 </Suspense>
               ) : (
-                <span className="inline-block w-1.5 h-4 bg-blue-500 rounded-sm animate-pulse" />
+                <span className="inline-block w-1.5 h-4 bg-accent-primary rounded-sm animate-pulse" />
               )}
               {msg.isStreaming && msg.content && (
-                <span className="inline-block w-1.5 h-4 bg-blue-500 rounded-sm animate-pulse ms-0.5 align-middle" />
+                <span className="inline-block w-1.5 h-4 bg-accent-primary rounded-sm animate-pulse ms-0.5 align-middle" />
               )}
             </div>
           )}

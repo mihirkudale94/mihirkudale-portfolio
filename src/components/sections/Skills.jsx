@@ -70,17 +70,17 @@ const iconMap = {
       className="w-5 h-5 opacity-80"
     />
   ),
-  django: <SiDjango className="text-green-700 text-lg" />,
-  flask: <SiFlask className="text-black text-lg" />,
+  django: <SiDjango className="text-green-600 text-lg" />,
+  flask: <SiFlask className="text-text-primary text-lg" />,
   streamlit: (
     <img
       src="https://streamlit.io/images/brand/streamlit-logo-primary-colormark-darktext.svg"
       alt="Streamlit"
-      className="w-5 h-5"
+      className="w-5 h-5 dark:brightness-125"
     />
   ),
   fastapi: <SiFastapi className="text-green-500 text-lg" />,
-  rest: <span className="text-slate-600 text-xs font-bold tracking-tight">REST</span>,
+  rest: <span className="text-text-secondary text-xs font-bold tracking-tight">REST</span>,
   html: <SiHtml5 className="text-orange-600 text-lg" />,
   css: <SiCss3 className="text-blue-500 text-lg" />,
   javascript: <SiJavascript className="text-yellow-500 text-lg" />,
@@ -97,7 +97,7 @@ const iconMap = {
   ),
   gcp: (
     <img
-      src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMDAgMzAwIiB3aWR0aD0iMjQiIGhlaWdodD0iMjQiICBzdHlsZT0ib3BhY2l0eToxOyI+PHBhdGggZmlsbD0iI2Y0NDMzNiIgZD0iTTE4NC4zNTEgMTAzLjgxNmg3Ljc4NmwyMi4xOTEtMjIuMTkxbDEuMDktOS40MjFhOTkuNzQzIDk5Ljc0MyAwIDAgMC0xNjIuMjY2IDQ4LjY2NGExMi4wNyAxMi4wNyAwIDAgMSA3Ljc4Ni0uNDY3bDQ0LjM4Mi03LjMyczIuMjU4LTMuNzM3IDMuNDI2LTMuNTAzYTU1LjM2IDU1LjM2IDAgMCAxIDc1Ljc2LTUuNzYyeiIvPjxwYXRoIGZpbGw9IiM0NDhhZmYiIGQ9Ik0yNDUuOTQgMTIwLjg2OGExMDAgMTAwIDAgMCAwLTMwLjEzMi00OC41ODdsLTMxLjE0NiAzMS4xNDZhNTUuMzYgNTUuMzYgMCAwIDEgMjAuMzIzIDQzLjkxNHY1LjUyOWEyNy43MiAyNy43MiAwIDEgMSAwIDU1LjQzOGgtNTUuNDM5bC01LjUyOCA1LjYwNnYzMy4yNDhsNS41MjggNS41MjhoNTUuNDM5YTcyLjEwMSA3Mi4xMDEgMCAwIDAgNDAuOTU2LTEzMS44MjJ6Ii8+PHBhdGggZmlsbD0iIzQzYTA0NyIgZD0iTTk0LjAzIDI1Mi4zNzloNTUuNDM4di00NC4zODJIOTQuMDNhMjcuNiAyNy42IDAgMCAxLTExLjQ0Ni0yLjQ5MmwtNy43ODYgMi40MTRsLTIyLjM0NyAyMi4xOWwtMS45NDcgNy43ODdhNzEuNyA3MS43IDAgMCAwIDQzLjUyNiAxNC40ODMiLz48cGF0aCBmaWxsPSIjZmZjMTA3IiBkPSJNOTQuMDMgMTA4LjQxYTcyLjEwMSA3Mi4xMDEgMCAwIDAtNDMuNTI2IDEyOS4yNTJsMzIuMTU4LTMyLjE1N2EyNy43MiAyNy43MiAwIDEgMSAzNi42NzMtMzYuNjczbDMyLjE1OC0zMi4xNThBNzIuMDIgNzIuMDIgMCAwIDAgOTQuMDMgMTA4LjQxIi8+PC9zdmc+"
+      src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMDAgMzAwIiB3aWR0aD0iMjQiIGhlaWdodD0iMjQiICBzdHlsZT0ib3BhY2l0eToxOyI+PHBhdGggZmlsbD0iI2Y0NDMzNiIgZD0iTTE4NC4zNTEgMTAzLjgxNmg3Ljc4NmwyMi4xOTEtMjIuMTkxbDEuMDktOS40MjFhOTkuNzQz 55LjM2IDAgMCAxIDc1Ljc2LTUuNzYyeiIvPjxwYXRoIGZpbGw9IiM0NDhhZmYiIGQ9Ik0yNDUuOTQgMTIwLjg2OGExMDAgMTAwIDAgMCAwLTMwLjEzMi00OC41ODdsLTMxLjE0NiAzMS4xNDZhNTUuMzYgNTUuMzYgMCAwIDEgMjAuMzIzIDQzLjkxNHY1LjUyOWEyNy43MiAyNy43MiAwIDEgMSAwIDU1LjQzOGgtNTUuNDM5bC01LjUyOCA1LjYwNnYzMy4yNDhsNS41MjggNS41MjhoNTUuNDM5YTcyLjEwMSA3Mi4xMDEgMCAwIDAgNDAuOTU2LTEzMS44MjJ6Ii8+PHBhdGggZmlsbD0iIzQzYTA0NyIgZD0iTTk0LjAzIDI1Mi4zNzloNTUuNDM4di00NC4zODJIOTQuMDNhMjcuNiAyNy42IDAgMCAxLTExLjQ0Ni0yLjQ5MmwtNy43ODYgMi40MTRsLTIyLjM0NyAyMi4xOWwtMS45NDcgNy43ODdhNzEuNyA3MS43IDAgMCAwIDQzLjUyNiAxNC40ODMiLz48cGF0aCBmaWxsPSIjZmZjMTA3IiBkPSJNOTQuMDMgMTA4LjQxYTcyLjEwMSA3Mi4xMDEgMCAwIDAtNDMuNTI2IDEyOS4yNTJsMzIuMTU4LTMyLjE1N2EyNy43MiAyNy43MiAwIDEgMSAzNi42NzMtMzYuNjczbDMyLjE1OC0zMi4xNThBNzIuMDIgNzIuMDIgMCAwIDAgOTQuMDMgMTA4LjQxIi8+PC9zdmc+"
       alt="GCP"
       className="w-5 h-5"
     />
@@ -105,13 +105,13 @@ const iconMap = {
   spark: <SiApachespark className="text-orange-500 text-lg" />,
   hive: <SiApachehive className="text-amber-500 text-lg" />,
   hadoop: <SiApachehadoop className="text-yellow-600 text-lg" />,
-  kafka: <SiApachekafka className="text-black text-lg" />,
+  kafka: <SiApachekafka className="text-text-primary text-lg" />,
   docker: <FaDocker className="text-blue-500 text-lg" />,
   git: <FaGitAlt className="text-orange-600 text-lg" />,
 };
 
 const SkillBadge = ({ iconKey, name }) => (
-  <div className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-3 py-1.5 rounded-full text-sm font-medium transition-colors hover:border-blue-300 hover:text-blue-700 hover:bg-blue-50 cursor-default">
+  <div className="flex items-center gap-2 bg-bg-primary border border-glass-border text-text-secondary px-3 py-1.5 rounded-full text-sm font-semibold transition-colors hover:border-accent-primary-light hover:text-accent-primary hover:bg-accent-primary-light/5 cursor-default">
     {iconMap[iconKey]}
     <span>{name}</span>
   </div>
@@ -129,21 +129,21 @@ const Skills = () => {
   return (
     <section
       id="skills"
-      className="relative py-28 px-6 bg-slate-50 text-slate-900 overflow-hidden"
+      className="relative py-28 px-6 bg-bg-secondary text-text-primary overflow-hidden transition-colors duration-300"
     >
       {/* Light Orbs */}
       <div
         aria-hidden="true"
-        className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full bg-blue-100/50 blur-[120px] pointer-events-none"
+        className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full bg-accent-primary-light/5 blur-[120px] pointer-events-none"
       />
 
       <div className="max-w-6xl mx-auto relative z-10">
         {/* Header */}
         <div className="text-center mb-16 space-y-3">
-          <p className="text-sm font-bold text-blue-600 tracking-widest uppercase">
+          <p className="text-sm font-bold text-accent-primary tracking-widest uppercase">
             Arsenal
           </p>
-          <h2 className="text-4xl font-extrabold text-slate-900 tracking-tight">
+          <h2 className="text-4xl font-extrabold text-text-primary tracking-tight">
             My Tech Stack
           </h2>
         </div>
@@ -158,8 +158,8 @@ const Skills = () => {
               key={title}
               onClick={() => setActiveCategory(title)}
               className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 border ${activeCategory === title
-                ? "bg-blue-600 text-white border-blue-600 shadow-[0_8px_16px_rgba(37,99,235,0.25)] -translate-y-0.5"
-                : "bg-white text-slate-600 border-slate-200 hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50 hover:shadow-sm"
+                ? "bg-accent-primary text-white border-accent-primary shadow-[0_8px_16px_rgba(37,99,235,0.15)] -translate-y-0.5"
+                : "bg-bg-primary text-text-secondary border-glass-border hover:border-accent-primary-light hover:text-accent-primary hover:bg-accent-primary-light/5 hover:shadow-sm"
                 }`}
             >
               {title}
@@ -181,11 +181,11 @@ const Skills = () => {
                 key={category.title}
                 className="group h-full"
               >
-                <TiltCard className="h-full glass-card gradient-border p-8 bg-white/80 grid grid-rows-[auto_1fr] gap-6">
+                <TiltCard className="h-full glass-card gradient-border p-8 bg-bg-primary/80 border-glass-border grid grid-rows-[auto_1fr] gap-6">
                   {/* Title with accent */}
                   <div className="flex items-center gap-3">
-                    <div className="h-6 w-1.5 rounded-full bg-gradient-to-b from-blue-500 to-cyan-400" />
-                    <h3 className="text-xl font-bold text-slate-900">
+                    <div className="h-6 w-1.5 rounded-full bg-gradient-to-b from-accent-primary to-accent-secondary" />
+                    <h3 className="text-xl font-bold text-text-primary">
                       {category.title}
                     </h3>
                   </div>

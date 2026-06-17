@@ -1,40 +1,72 @@
 @import "tailwindcss";
 
+@theme {
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-tertiary: var(--bg-tertiary);
+  
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  
+  --color-accent-primary: var(--accent-primary);
+  --color-accent-primary-light: var(--accent-primary-light);
+  --color-accent-secondary: var(--accent-secondary);
+  --color-accent-secondary-light: var(--accent-secondary-light);
+  
+  --color-glass-bg: var(--glass-bg);
+  --color-glass-border: var(--glass-border);
+  --color-glass-hover: var(--glass-hover);
+}
+
 /* ================================================
-   2026 DESIGN SYSTEM — PREMIUM LIGHT MODE
-   Palette: Slate Whites + Vibrant Blue/Violet Accents
+   2026 DESIGN SYSTEM — PREMIUM LIGHT & DARK THEMES
    ================================================ */
 
 :root {
-  --accent-primary: #3b82f6;
-  /* Blue 500 */
-  --accent-primary-light: #60a5fa;
-  /* Blue 400 */
-  --accent-secondary: #8b5cf6;
-  /* Violet 500 */
-  --accent-secondary-light: #a78bfa;
-  /* Violet 400 */
+  --accent-primary: #2563eb;
+  --accent-primary-light: #3b82f6;
+  --accent-secondary: #7c3aed;
+  --accent-secondary-light: #8b5cf6;
 
   --bg-primary: #ffffff;
   --bg-secondary: #f8fafc;
-  /* Slate 50 */
   --bg-tertiary: #f1f5f9;
-  /* Slate 100 */
 
-  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-bg: rgba(255, 255, 255, 0.92);
   --glass-border: rgba(226, 232, 240, 0.8);
-  /* Slate 200 */
   --glass-hover: rgba(255, 255, 255, 0.95);
+  --glass-hover-border: rgba(37, 99, 235, 0.15);
 
   --text-primary: #0f172a;
-  /* Slate 900 */
-  --text-secondary: #475569;
-  /* Slate 600 */
+  --text-secondary: #334155;
   --text-tertiary: #64748b;
-  /* Slate 500 */
 
-  --shadow-soft: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
-  --shadow-hover: 0 20px 40px -10px rgba(59, 130, 246, 0.15);
+  --shadow-soft: 0 10px 40px -10px rgba(0, 0, 0, 0.04);
+  --shadow-hover: 0 20px 40px -10px rgba(37, 99, 235, 0.08);
+}
+
+.dark {
+  --accent-primary: #60a5fa;
+  --accent-primary-light: #93c5fd;
+  --accent-secondary: #a78bfa;
+  --accent-secondary-light: #c084fc;
+
+  --bg-primary: #090d16;
+  --bg-secondary: #0b1120;
+  --bg-tertiary: #172033;
+
+  --glass-bg: rgba(9, 13, 22, 0.95);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-hover: rgba(17, 24, 39, 0.95);
+  --glass-hover-border: rgba(96, 165, 250, 0.25);
+
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
+
+  --shadow-soft: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+  --shadow-hover: 0 20px 40px -10px rgba(59, 130, 246, 0.25);
 }
 
 html,
@@ -44,6 +76,7 @@ body {
   font-family: "Space Grotesk", sans-serif;
   background: var(--bg-secondary);
   color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -57,11 +90,9 @@ section {
   contain-intrinsic-size: auto 500px;
 }
 
-/* ===== GLOBAL GLASS CARD (LIGHT) ===== */
+/* ===== GLOBAL GLASS CARD ===== */
 .glass-card {
   background: var(--glass-bg);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--glass-border);
   border-radius: 1.25rem;
   box-shadow: var(--shadow-soft);
@@ -70,7 +101,7 @@ section {
 
 .glass-card:hover {
   background: var(--glass-hover);
-  border-color: rgba(59, 130, 246, 0.2);
+  border-color: var(--glass-hover-border);
   box-shadow: var(--shadow-hover);
   transform: translateY(-3px);
 }

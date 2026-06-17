@@ -22,7 +22,7 @@ export function ChatMessages({
 
   return (
     <div
-      className="flex-1 overflow-y-auto p-5 space-y-5 bg-slate-50/30"
+      className="flex-1 overflow-y-auto p-5 space-y-5 bg-bg-secondary/30"
       aria-live="polite"
       aria-atomic="false"
     >
@@ -32,15 +32,15 @@ export function ChatMessages({
 
       {loading && !streaming && (
         <div className="flex flex-col items-start gap-1">
-          <div className="bg-white rounded-[1.25rem] rounded-bl-sm px-5 py-3.5 border border-slate-100 shadow-sm">
+          <div className="bg-bg-primary rounded-[1.25rem] rounded-bl-sm px-5 py-3.5 border border-glass-border shadow-sm">
             <span className="inline-flex gap-1.5 align-middle">
-              <span className="w-2 h-2 rounded-full bg-blue-500/80 animate-bounce [animation-delay:0ms]" />
-              <span className="w-2 h-2 rounded-full bg-blue-500/80 animate-bounce [animation-delay:150ms]" />
-              <span className="w-2 h-2 rounded-full bg-blue-500/80 animate-bounce [animation-delay:300ms]" />
+              <span className="w-2 h-2 rounded-full bg-accent-primary/80 animate-bounce [animation-delay:0ms]" />
+              <span className="w-2 h-2 rounded-full bg-accent-primary/80 animate-bounce [animation-delay:150ms]" />
+              <span className="w-2 h-2 rounded-full bg-accent-primary/80 animate-bounce [animation-delay:300ms]" />
             </span>
           </div>
           {slowResponse && (
-            <p className="text-xs text-slate-400 font-medium ps-1 animate-pulse">
+            <p className="text-xs text-text-tertiary font-medium ps-1 animate-pulse">
               Still thinking... first response may take a moment ☕
             </p>
           )}

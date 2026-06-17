@@ -79,7 +79,25 @@ function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [theme, setTheme] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("theme");
+      if (saved === "light" || saved === "dark") return saved;
+      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+    return "light";
+  });
   const location = useLocation();
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    if (theme === "dark") {
+      root.classList.add("dark");
+    } else {
+      root.classList.remove("dark");
+    }
+    localStorage.setItem("theme", theme);
+  }, [theme]);
 
   // Passive listener + startTransition for non-urgent scroll state
   useEffect(() => {
@@ -95,6 +113,18 @@ function App() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Easter egg greeting in DevTools Console for tech recruiters
+  useEffect(() => {
+    console.log(
+      "%c✨ Welcome to Mihir's Portfolio! ✨",
+      "color: #2563eb; font-size: 20px; font-weight: bold; padding: 8px; background: rgba(37,99,235,0.05); border-radius: 8px; border: 1.5px solid rgba(37,99,235,0.2);"
+    );
+    console.log(
+      "%cHey there, developer or tech recruiter! Thanks for checking out the source elements. This portfolio is optimized for speed, Core Web Vitals, and full keyboard accessibility. Let's connect: https://linkedin.com/in/mihirkudale/",
+      "color: #475569; font-size: 13px; font-weight: 500; line-height: 1.6;"
+    );
+  }, []);
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -102,7 +132,7 @@ function App() {
   const meta = ROUTE_META[location.pathname] ?? ROUTE_META["/"];
 
   return (
-    <div className="min-h-dvh bg-slate-50 text-slate-900 selection:bg-blue-200 selection:text-blue-900">
+    <div className="min-h-dvh bg-bg-secondary text-text-primary selection:bg-accent-primary-light/30 selection:text-text-primary transition-colors duration-300">
       <Helmet>
         <title>{meta.title}</title>
         <meta name="description" content={meta.description} />
@@ -113,6 +143,31 @@ function App() {
         <meta name="twitter:title" content={meta.title} />
         <meta name="twitter:description" content={meta.description} />
         <link rel="canonical" href={`${SITE_URL}${location.pathname}`} />
+        
+        {/* Google-level JSON-LD Structured Data Schema */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Person",
+            "name": "Mihir Kudale",
+            "jobTitle": "Data Scientist & AI Developer",
+            "url": SITE_URL,
+            "sameAs": [
+              "https://github.com/mihirkudale94",
+              "https://linkedin.com/in/mihirkudale"
+            ],
+            "knowsAbout": [
+              "Data Science",
+              "Machine Learning",
+              "AI Development",
+              "Data Analytics",
+              "Python",
+              "SQL",
+              "Power BI",
+              "Tableau"
+            ]
+          })}
+        </script>
       </Helmet>
       {/* Scroll progress bar */}
       <div
@@ -122,7 +177,7 @@ function App() {
       />
 
       <ErrorBoundary>
-        <Navbar menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
+        <Navbar menuOpen={menuOpen} setMenuOpen={setMenuOpen} theme={theme} setTheme={setTheme} />
       </ErrorBoundary>
 
       <AnimatePresence mode="wait">
@@ -173,14 +228,6 @@ function App() {
           <FaArrowUp className="text-base" />
         </button>
       )}
-
-      {/* Subtle Premium Noise Overlay */}
-      <div
-        className="fixed inset-0 z-0 pointer-events-none opacity-[0.015] mix-blend-overlay"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-        }}
-      />
     </div>
   );
 }

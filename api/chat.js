@@ -97,7 +97,6 @@ async function getGraph() {
   const { z } = await import('zod');
   const { StateGraph, MessagesAnnotation, END, START } = await import('@langchain/langgraph');
   const { HumanMessage, SystemMessage, AIMessage } = await import('@langchain/core/messages');
-  const { ToolNode } = await import('@langchain/langgraph/prebuilt');
 
   // --- Tools ---
   const getPortfolioDataTool = tool(
@@ -211,7 +210,42 @@ async function getGraph() {
   );
 
   const tools = [getPortfolioDataTool, checkAvailabilityTool, navigateToSectionTool, copyEmailTool, openBookingLinkTool, getLiveGitHubActivityTool];
-  const toolNode = new ToolNode(tools);
+  
+  // Custom tool node replacement to support all versions of @langchain/langgraph
+  const toolNode = async (state) => {
+    const lastMessage = state.messages[state.messages.length - 1];
+    const toolCalls = lastMessage?.tool_calls ?? [];
+    const newMessages = [];
+    const { ToolMessage } = await import('@langchain/core/messages');
+
+    for (const toolCall of toolCalls) {
+      const tool = tools.find(t => t.name === toolCall.name);
+      if (tool) {
+        try {
+          const result = await tool.invoke(toolCall.args);
+          newMessages.push(new ToolMessage({
+            content: typeof result === 'string' ? result : JSON.stringify(result),
+            tool_call_id: toolCall.id,
+            name: toolCall.name,
+          }));
+        } catch (toolErr) {
+          logger.error(`Error invoking tool ${toolCall.name}:`, toolErr);
+          newMessages.push(new ToolMessage({
+            content: `Error running tool: ${toolErr.message}`,
+            tool_call_id: toolCall.id,
+            name: toolCall.name,
+          }));
+        }
+      } else {
+        newMessages.push(new ToolMessage({
+          content: `Error: Tool "${toolCall.name}" not found.`,
+          tool_call_id: toolCall.id,
+          name: toolCall.name,
+        }));
+      }
+    }
+    return { messages: newMessages };
+  };
 
   // --- LLM: Cerebras (llama-3.3-70b) ---
   const { ChatOpenAI } = await import('@langchain/openai');

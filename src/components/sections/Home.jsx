@@ -11,7 +11,7 @@ export const Home = () => {
   return (
     <section
       id="home"
-      className="relative min-h-dvh overflow-hidden bg-slate-50 text-slate-900 px-6 md:px-12 py-24 flex items-center justify-center"
+      className="relative min-h-dvh overflow-hidden bg-bg-secondary text-text-primary px-6 md:px-12 py-24 flex items-center justify-center transition-colors duration-300"
     >
       {/* ── Interactive Generative Glow (2026) ── */}
       <InteractiveGlow />
@@ -19,9 +19,9 @@ export const Home = () => {
       {/* ── Subtle Dot grid texture overlay ── */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 pointer-events-none opacity-[0.03]"
+        className="absolute inset-0 pointer-events-none opacity-[0.03] dark:opacity-[0.015]"
         style={{
-          backgroundImage: "radial-gradient(circle, #0f172a 1px, transparent 1px)",
+          backgroundImage: "radial-gradient(circle, var(--text-primary) 1px, transparent 1px)",
           backgroundSize: "40px 40px",
         }}
       />
@@ -36,13 +36,13 @@ export const Home = () => {
           {/* ── Left: Intro ── */}
           <div className="space-y-7">
             {/* Role tag */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-blue-700 text-sm font-semibold shadow-sm">
-              <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent-primary/10 border border-accent-primary-light/20 text-accent-primary text-sm font-bold shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-accent-primary animate-pulse" />
               {homeData.roles}
             </div>
 
             {/* Name headline - Kinetic Typography */}
-            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight text-slate-900 flex flex-wrap items-center gap-x-2">
+            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight text-text-primary flex flex-wrap items-center gap-x-2">
               <span className="mr-2">Hi, I'm</span>
               <div className="flex space-x-[0.05em]">
                 {homeData.name.split("").map((char, index) => (
@@ -67,7 +67,7 @@ export const Home = () => {
             </h1>
 
             {/* Tagline */}
-            <p className="text-lg md:text-xl text-slate-600 max-w-xl leading-relaxed font-medium">
+            <p className="text-lg md:text-xl text-text-secondary max-w-xl leading-relaxed font-medium">
               {homeData.headline}
             </p>
 
@@ -76,7 +76,7 @@ export const Home = () => {
               {homeData.badges.map((badge, index) => (
                 <span
                   key={index}
-                  className="rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-sm font-medium text-slate-600 shadow-sm hover:border-blue-300 hover:text-blue-700 transition-all duration-200 cursor-default"
+                  className="rounded-full border border-glass-border bg-bg-primary px-3.5 py-1.5 text-sm font-semibold text-text-secondary shadow-sm hover:border-accent-primary-light hover:text-accent-primary hover:bg-accent-primary-light/5 transition-all duration-200 cursor-default"
                 >
                   {badge}
                 </span>
@@ -91,7 +91,7 @@ export const Home = () => {
                   whileTap={{ scale: 0.95 }}
                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
                   href={homeData.cta.primary.href}
-                  className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-7 py-3.5 text-white font-semibold shadow-[0_10px_20px_rgba(37,99,235,0.2)] hover:shadow-[0_15px_30px_rgba(37,99,235,0.3)] hover:bg-blue-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                  className="inline-flex items-center justify-center rounded-xl bg-accent-primary px-7 py-3.5 text-white font-bold shadow-[0_10px_20px_rgba(37,99,235,0.15)] hover:shadow-[0_15px_30px_rgba(37,99,235,0.25)] hover:bg-accent-primary-light transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent-primary/45"
                 >
                   {homeData.cta.primary.label}
                 </motion.a>
@@ -102,7 +102,7 @@ export const Home = () => {
                   whileTap={{ scale: 0.95 }}
                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
                   href={homeData.cta.secondary.href}
-                  className="inline-flex items-center justify-center rounded-xl border-2 border-slate-200 bg-white/50 px-7 py-3.5 text-slate-700 font-semibold backdrop-blur-sm hover:border-blue-500 hover:bg-blue-50 hover:text-blue-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
+                  className="inline-flex items-center justify-center rounded-xl border-2 border-glass-border bg-bg-primary/50 px-7 py-3.5 text-text-secondary font-bold backdrop-blur-sm hover:border-accent-primary hover:bg-bg-tertiary hover:text-text-primary transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent-primary/30"
                 >
                   {homeData.cta.secondary.label}
                 </motion.a>
@@ -116,7 +116,7 @@ export const Home = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="LinkedIn profile"
-                className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-white text-blue-600 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-blue-300 hover:shadow-[0_10px_20px_rgba(37,99,235,0.15)]"
+                className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-glass-border bg-bg-primary text-accent-primary shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-accent-primary-light hover:shadow-md focus-visible:ring-4 focus-visible:ring-accent-primary/45"
               >
                 <FaLinkedin className="text-xl" />
               </a>
@@ -125,14 +125,14 @@ export const Home = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="GitHub profile"
-                className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-slate-300 hover:text-black hover:shadow-[0_10px_20px_rgba(0,0,0,0.1)]"
+                className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-glass-border bg-bg-primary text-text-secondary shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-text-primary hover:text-text-primary hover:shadow-md focus-visible:ring-4 focus-visible:ring-accent-primary/30"
               >
                 <FaGithub className="text-xl" />
               </a>
               <a
                 href={homeData.social.email}
                 aria-label="Email Mihir"
-                className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-white text-rose-500 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-rose-300 hover:shadow-[0_10px_20px_rgba(244,63,94,0.15)]"
+                className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-glass-border bg-bg-primary text-rose-500 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-rose-300 hover:shadow-md focus-visible:ring-4 focus-visible:ring-accent-primary/30"
               >
                 <HiOutlineMail className="text-2xl" />
               </a>
@@ -147,7 +147,7 @@ export const Home = () => {
                 {/* Soft decorative background blob */}
                 <div
                   aria-hidden="true"
-                  className="absolute -inset-4 rounded-[3rem] bg-gradient-to-tr from-blue-200/50 to-violet-200/50 blur-xl mix-blend-multiply"
+                  className="absolute -inset-4 rounded-[3rem] bg-gradient-to-tr from-blue-200/50 to-violet-200/50 dark:from-accent-primary-light/10 dark:to-accent-secondary-light/10 blur-xl mix-blend-multiply dark:mix-blend-screen"
                 />
 
                 <img
@@ -155,7 +155,7 @@ export const Home = () => {
                   alt={homeData.image.alt}
                   width={homeData.image.width}
                   height={homeData.image.height}
-                  className="relative w-[280px] md:w-[380px] h-auto object-cover rounded-[2.5rem] shadow-[0_20px_40px_-10px_rgba(0,0,0,0.15)]"
+                  className="relative w-[280px] md:w-[380px] h-auto object-cover rounded-[2.5rem] shadow-[0_20px_40px_-10px_rgba(0,0,0,0.12)]"
                   loading="eager"
                   fetchpriority="high"
                   decoding="async"

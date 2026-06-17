@@ -33,17 +33,17 @@ export const InteractiveGlow = () => {
             {/* Base static ambient light */}
             <div
                 aria-hidden="true"
-                className="absolute top-[-10%] left-[-5%] h-[500px] w-[500px] rounded-full bg-blue-400/10 blur-[120px] pointer-events-none"
+                className="absolute top-[-10%] left-[-5%] h-[500px] w-[500px] rounded-full bg-blue-400/10 dark:bg-blue-500/5 blur-[120px] pointer-events-none"
             />
             <div
                 aria-hidden="true"
-                className="absolute bottom-[-10%] right-[-5%] h-[450px] w-[450px] rounded-full bg-violet-300/10 blur-[120px] pointer-events-none"
+                className="absolute bottom-[-10%] right-[-5%] h-[450px] w-[450px] rounded-full bg-violet-300/10 dark:bg-violet-500/5 blur-[120px] pointer-events-none"
             />
 
             {/* Interactive mouse-following spotlight */}
             <motion.div
                 aria-hidden="true"
-                className="absolute top-1/2 left-1/2 -ml-[300px] -mt-[300px] h-[600px] w-[600px] rounded-full mix-blend-multiply opacity-50 blur-[120px] pointer-events-none bg-gradient-to-tr from-cyan-300/30 to-blue-400/30 hidden md:block"
+                className="absolute top-1/2 left-1/2 -ml-[200px] -mt-[200px] h-[400px] w-[400px] rounded-full mix-blend-multiply dark:mix-blend-screen opacity-50 dark:opacity-30 blur-[80px] pointer-events-none bg-gradient-to-tr from-cyan-300/30 to-blue-400/30 dark:from-cyan-500/20 dark:to-violet-500/20 hidden md:block"
                 style={{
                     x: smoothX,
                     y: smoothY,

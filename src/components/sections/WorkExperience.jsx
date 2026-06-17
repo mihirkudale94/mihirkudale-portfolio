@@ -8,16 +8,16 @@ const WorkExperience = () => {
     <section
       id="experience"
       aria-labelledby="experience-heading"
-      className="relative py-28 px-6 bg-white text-slate-900 overflow-hidden"
+      className="relative py-28 px-6 bg-bg-primary text-text-primary overflow-hidden transition-colors duration-300"
     >
       {/* Background orb */}
       <div
         aria-hidden="true"
-        className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-blue-50 blur-[120px] pointer-events-none"
+        className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-accent-primary-light/5 blur-[120px] pointer-events-none"
       />
       <div
         aria-hidden="true"
-        className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-violet-50 blur-[100px] pointer-events-none"
+        className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-accent-secondary-light/5 blur-[100px] pointer-events-none"
       />
 
       <motion.div
@@ -29,12 +29,12 @@ const WorkExperience = () => {
         <div className="max-w-6xl mx-auto relative z-10">
           {/* Header */}
           <div className="text-center mb-16 space-y-3">
-            <p className="text-sm font-bold text-blue-600 tracking-widest uppercase">
+            <p className="text-sm font-bold text-accent-primary tracking-widest uppercase">
               Career
             </p>
             <h2
               id="experience-heading"
-              className="text-4xl font-extrabold text-slate-900 tracking-tight"
+              className="text-4xl font-extrabold text-text-primary tracking-tight"
             >
               Work Experience
             </h2>
@@ -45,7 +45,7 @@ const WorkExperience = () => {
             {/* Elegant thin timeline line */}
             <div
               aria-hidden="true"
-              className="absolute left-[7px] top-0 bottom-0 w-[2px] bg-slate-200 rounded-full"
+              className="absolute left-[7px] top-0 bottom-0 w-[2px] bg-glass-border rounded-full"
             />
 
             {experiences.map((exp, index) => (
@@ -53,24 +53,24 @@ const WorkExperience = () => {
                 {/* Clean timeline dot */}
                 <span
                   aria-hidden="true"
-                  className="absolute left-[2px] top-6 h-3 w-3 rounded-full bg-blue-500 ring-[6px] ring-white z-10 pointer-events-none transition-transform duration-500 group-hover:scale-125 group-hover:bg-blue-600"
+                  className="absolute left-[2px] top-6 h-3 w-3 rounded-full bg-accent-primary ring-[6px] ring-bg-primary z-10 pointer-events-none transition-transform duration-500 group-hover:scale-125 group-hover:bg-accent-primary-light"
                 />
 
                 {/* Card */}
-                <article className="glass-card gradient-border p-8 bg-slate-50/50 hover:bg-white transition-colors duration-300">
+                <article className="glass-card gradient-border p-8 bg-bg-secondary/45 hover:bg-bg-primary border-glass-border transition-colors duration-300">
                   {/* Company header */}
                   <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                     <div className="flex items-center gap-5">
                       {/* Company icon */}
-                      <div className="flex-shrink-0 h-14 w-14 rounded-2xl bg-white border border-slate-200 text-blue-600 flex items-center justify-center shadow-sm group-hover:shadow-[0_8px_16px_rgba(37,99,235,0.12)] transition-shadow duration-300">
+                      <div className="flex-shrink-0 h-14 w-14 rounded-2xl bg-bg-primary border border-glass-border text-accent-primary flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow duration-300">
                         <LuBuilding2 className="h-6 w-6" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-extrabold text-slate-900 leading-tight">
+                        <h3 className="text-xl font-extrabold text-text-primary leading-tight">
                           {exp.company}
                         </h3>
-                        <div className="flex items-center gap-1.5 text-sm font-medium text-slate-500 mt-1">
-                          <LuMapPin className="h-4 w-4 text-blue-500" />
+                        <div className="flex items-center gap-1.5 text-sm font-medium text-text-tertiary mt-1">
+                          <LuMapPin className="h-4 w-4 text-accent-primary" />
                           <span>{exp.location}</span>
                         </div>
                       </div>
@@ -83,16 +83,16 @@ const WorkExperience = () => {
                       <div
                         key={rIndex}
                         className={`relative ${rIndex !== exp.roles.length - 1
-                          ? "pb-8 border-b border-slate-200"
+                          ? "pb-8 border-b border-glass-border"
                           : ""
                           }`}
                       >
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-                          <h4 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                            <LuBriefcase className="h-5 w-5 text-blue-500" />
+                          <h4 className="text-lg font-bold text-text-primary flex items-center gap-2">
+                            <LuBriefcase className="h-5 w-5 text-accent-primary" />
                             {role.role}
                           </h4>
-                          <span className="inline-flex px-3.5 py-1 text-xs font-bold uppercase tracking-wider rounded-full bg-blue-100 text-blue-700">
+                          <span className="inline-flex px-3.5 py-1 text-xs font-bold uppercase tracking-wider rounded-full bg-accent-primary/10 text-accent-primary">
                             {role.display}
                           </span>
                         </div>
@@ -103,7 +103,7 @@ const WorkExperience = () => {
                             {role.tech.map((tech, tIndex) => (
                               <span
                                 key={tIndex}
-                                className="px-3 py-1 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-600 shadow-sm hover:border-blue-300 hover:text-blue-700 cursor-default transition-colors duration-200"
+                                className="px-3 py-1 text-xs font-semibold rounded-lg bg-bg-primary border border-glass-border text-text-secondary shadow-sm hover:border-accent-primary-light hover:text-accent-primary cursor-default transition-colors duration-200"
                               >
                                 {tech}
                               </span>

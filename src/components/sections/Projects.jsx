@@ -23,26 +23,26 @@ export const Projects = () => {
   return (
     <section
       id="projects"
-      className="relative py-28 bg-white text-slate-900 overflow-hidden"
+      className="relative py-28 bg-bg-primary text-text-primary overflow-hidden transition-colors duration-300"
     >
       {/* Soft Light Orbs */}
       <div
         aria-hidden="true"
-        className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-blue-50 blur-[120px] pointer-events-none"
+        className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-accent-primary-light/5 blur-[120px] pointer-events-none"
       />
       <div
         aria-hidden="true"
-        className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-slate-100 blur-[100px] pointer-events-none"
+        className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-bg-secondary blur-[100px] pointer-events-none"
       />
 
       <>
         <div className="mx-auto w-full px-5 sm:px-6 lg:px-8 max-w-screen-xl relative z-10">
           {/* Header */}
           <div className="text-center mb-16 space-y-3">
-            <p className="text-sm font-bold text-blue-600 tracking-widest uppercase">
+            <p className="text-sm font-bold text-accent-primary tracking-widest uppercase">
               Portfolio
             </p>
-            <h2 className="text-4xl font-extrabold text-slate-900 tracking-tight">
+            <h2 className="text-4xl font-extrabold text-text-primary tracking-tight">
               Featured Projects
             </h2>
           </div>
@@ -50,7 +50,7 @@ export const Projects = () => {
           {/* Search Bar */}
           <div className="mb-10 flex justify-center">
             <div className="relative w-full md:w-[600px] group">
-              <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors">
+              <div className="absolute left-5 top-1/2 -translate-y-1/2 text-text-tertiary group-focus-within:text-accent-primary transition-colors">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
@@ -60,13 +60,13 @@ export const Projects = () => {
                 placeholder="Search projects…"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full ps-14 pe-12 py-4 bg-white border-2 border-slate-200 rounded-2xl text-slate-900 font-medium placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-50/50 shadow-sm transition-all duration-300"
+                className="w-full ps-14 pe-12 py-4 bg-bg-primary border-2 border-glass-border rounded-2xl text-text-primary font-semibold placeholder-text-tertiary/75 focus:outline-none focus:border-accent-primary focus:ring-4 focus:ring-accent-primary-light/20 shadow-sm transition-all duration-300"
               />
               {searchQuery && (
                 <button
                   type="button"
                   onClick={() => setSearchQuery("")}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-700 font-bold transition-all"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-bg-secondary text-text-secondary hover:bg-bg-tertiary hover:text-text-primary font-bold transition-all"
                   aria-label="Clear search"
                 >
                   ×
@@ -85,8 +85,8 @@ export const Projects = () => {
                 key={tech}
                 onClick={() => setActiveTech(tech)}
                 className={`px-5 py-2 rounded-full text-sm font-bold tracking-wide transition-all duration-300 border-2 ${activeTech === tech
-                  ? "bg-blue-600 text-white border-blue-600 shadow-[0_8px_16px_rgba(37,99,235,0.25)] -translate-y-0.5"
-                  : "bg-white text-slate-600 border-slate-200 hover:border-blue-200 hover:text-blue-700 hover:bg-blue-50"
+                  ? "bg-accent-primary text-white border-accent-primary shadow-[0_8px_16px_rgba(37,99,235,0.15)] -translate-y-0.5"
+                  : "bg-bg-primary text-text-secondary border-glass-border hover:border-accent-primary-light hover:text-accent-primary hover:bg-accent-primary-light/5"
                   }`}
               >
                 {tech}
@@ -95,9 +95,9 @@ export const Projects = () => {
           </div>
 
           {/* Result count */}
-          <p className="text-center font-medium text-slate-500 mb-10">
-            Showing <span className="text-slate-900 font-bold">{filteredProjects.length}</span> project{filteredProjects.length !== 1 ? "s" : ""}
-            {activeTech !== "All" && ` matching `}<span className="text-blue-600">{activeTech !== "All" ? activeTech : ""}</span>
+          <p className="text-center font-semibold text-text-secondary mb-10">
+            Showing <span className="text-text-primary font-bold">{filteredProjects.length}</span> project{filteredProjects.length !== 1 ? "s" : ""}
+            {activeTech !== "All" && ` matching `}<span className="text-accent-primary">{activeTech !== "All" ? activeTech : ""}</span>
           </p>
 
           {/* Project Cards */}
@@ -107,6 +107,22 @@ export const Projects = () => {
                 const stack = project.stack ?? [];
                 const showLive = Boolean(project.demo?.trim());
                 const hasGithub = Boolean(project.github?.trim());
+
+                // Metrics highlight helper
+                const highlightMetrics = (text) => {
+                  if (!text) return "";
+                  const regex = /(\b\d+(?:\.\d+)?%?\s*(?:more|less|greater|fewer|increase|decrease|reduction|performance|improvement|gain|latency|speedup|accuracy|boost|efficiency|faster|slower|x)?\b|Amazon|Power BI|SQL|Python|Generative AI|Tableau|Excel|Blinkit)/gi;
+                  const parts = text.split(regex);
+                  return parts.map((part, i) =>
+                    regex.test(part) ? (
+                      <strong key={i} className="font-extrabold text-text-primary underline decoration-accent-primary/20 decoration-2 underline-offset-2">
+                        {part}
+                      </strong>
+                    ) : (
+                      part
+                    )
+                  );
+                };
 
                 return (
                   <motion.div
@@ -119,17 +135,17 @@ export const Projects = () => {
                     key={`${project.title}-${index}`}
                     className="group relative flex flex-col h-full"
                   >
-                    <TiltCard className="flex flex-col flex-1 h-full glass-card overflow-hidden bg-slate-50/50 hover:bg-white @container has-[:focus-visible]:ring-4 has-[:focus-visible]:ring-blue-500 transition-all duration-300">
+                    <TiltCard className="flex flex-col flex-1 h-full glass-card overflow-hidden bg-bg-secondary/45 hover:bg-bg-primary border-glass-border @container focus-within:ring-4 focus-within:ring-accent-primary/40 transition-all duration-300">
                       {/* Colorful subtle top bar */}
-                      <div className="h-1.5 w-full bg-gradient-to-r from-blue-500 to-cyan-400 opacity-80 group-hover:opacity-100 transition-opacity" />
+                      <div className="h-1.5 w-full bg-gradient-to-r from-accent-primary to-accent-secondary opacity-80 group-hover:opacity-100 transition-opacity" />
 
                       {/* Card body */}
                       <div className="p-6 @sm:p-8 flex flex-col flex-1 gap-y-1">
-                        <h3 className="text-xl @sm:text-2xl font-extrabold mb-2 text-slate-900 group-hover:text-blue-600 transition-colors duration-300">
+                        <h3 className="text-xl @sm:text-2xl font-extrabold mb-2 text-text-primary group-hover:text-accent-primary transition-colors duration-300">
                           {project.title}
                         </h3>
-                        <p className="text-base font-medium text-slate-600 mb-6 leading-relaxed flex-1">
-                          {project.description}
+                        <p className="text-base font-medium text-text-secondary mb-6 leading-relaxed flex-1">
+                          {highlightMetrics(project.description)}
                         </p>
 
                         {/* Tech Tags */}
@@ -138,33 +154,33 @@ export const Projects = () => {
                             <span
                               key={`${project.title}-tag-${tech}-${i}`}
                               title={techDescriptions?.[tech] ?? tech}
-                              className="bg-blue-50 text-blue-700 border border-blue-100 py-1 px-3 rounded-lg text-xs font-bold"
+                              className="bg-accent-primary/10 text-accent-primary border border-accent-primary-light/10 py-1 px-3 rounded-lg text-xs font-bold"
                             >
                               {tech}
                             </span>
                           ))}
                           {stack.length > MAX_VISIBLE_TAGS && (
-                            <span className="text-xs font-bold text-slate-500 bg-slate-100 py-1 px-2.5 rounded-lg border border-slate-200">
+                            <span className="text-xs font-bold text-text-tertiary bg-bg-secondary py-1 px-2.5 rounded-lg border border-glass-border">
                               +{stack.length - MAX_VISIBLE_TAGS} more
                             </span>
                           )}
                         </div>
 
                         {/* Links — relative + z-10 so gradient-border ::before pseudo-element doesn't intercept clicks */}
-                        <div className="relative z-10 flex gap-5 items-center text-sm font-bold mt-auto pt-5 border-t-2 border-slate-100">
+                        <div className="relative z-10 flex gap-5 items-center text-sm font-bold mt-auto pt-5 border-t-2 border-glass-border">
                           {hasGithub ? (
                             <a
                               href={project.github}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 hover:underline transition-colors cursor-pointer"
+                              className="inline-flex items-center gap-2 text-text-secondary hover:text-text-primary hover:underline transition-colors cursor-pointer"
                               onClick={(e) => e.stopPropagation()}
                             >
                               <FaGithub className="text-lg shrink-0" />
                               View Code
                             </a>
                           ) : (
-                            <span className="inline-flex items-center gap-2 text-slate-300 cursor-not-allowed text-xs font-medium">
+                            <span className="inline-flex items-center gap-2 text-text-tertiary/40 cursor-not-allowed text-xs font-medium">
                               <FaGithub className="text-base shrink-0" />
                               Private Repo
                             </span>
@@ -174,11 +190,11 @@ export const Projects = () => {
                               href={project.demo}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 hover:underline transition-colors cursor-pointer ms-auto outline-none"
+                              className="inline-flex items-center gap-2 text-accent-primary hover:text-accent-primary-light hover:underline transition-colors cursor-pointer ms-auto outline-none"
                               onClick={(e) => e.stopPropagation()}
                             >
                               <FaExternalLinkAlt className="text-xs shrink-0" />
-                              Live Demo
+                              Live Dashboard
                             </a>
                           )}
                         </div>
@@ -196,7 +212,7 @@ export const Projects = () => {
               href="https://github.com/mihirkudale94"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl border-2 border-slate-200 text-slate-700 bg-white hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700 hover:shadow-md transition-all duration-300 font-bold text-base group"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl border border-glass-border text-text-secondary bg-bg-primary hover:bg-accent-primary-light/5 hover:border-accent-primary-light hover:text-accent-primary hover:shadow-md transition-all duration-300 font-bold text-base group"
             >
               <FaGithub className="text-xl" />
               View all projects on GitHub
