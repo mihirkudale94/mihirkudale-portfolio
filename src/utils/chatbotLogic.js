@@ -248,17 +248,25 @@ const EMPTY_INPUT_REPLY = `Ask about ${name} – e.g. "Who is Mihir?", "Educatio
  * @param {Function} onToken - Callback invoked with each streamed token chunk: (token: string) => void
  * @returns {Promise<{reply: string, source: 'api' | 'rule-based' | 'error'}>}
  */
-export async function getChatbotReplyAsync(userMessage, conversationHistory = [], onToken = null) {
+export async function getChatbotReplyAsync(userMessage, conversationHistory = [], onToken = null, signal = null) {
   try {
     const normalized = normalizeInput(userMessage);
     if (!normalized) {
-      return { reply: EMPTY_INPUT_REPLY, source: 'rule-based' };
+      return { reply: EMPTY_INPUT_REPLY, source: 'rule-based', messages: [{ role: 'assistant', content: EMPTY_INPUT_REPLY }] };
     }
 
     // Try SSE streaming API first
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+      if (signal) {
+        if (signal.aborted) {
+          controller.abort();
+        } else {
+          signal.addEventListener('abort', () => controller.abort());
+        }
+      }
 
       let response;
       try {
@@ -277,6 +285,14 @@ export async function getChatbotReplyAsync(userMessage, conversationHistory = []
       }
 
       if (!response.ok) {
+        if (response.status === 429) {
+          const rateLimitMsg = "Rate limit exceeded. You have sent too many messages recently. Please wait a moment before trying again.";
+          return {
+            reply: rateLimitMsg,
+            source: 'api',
+            messages: [{ role: 'assistant', content: rateLimitMsg }]
+          };
+        }
         throw new Error(`API error: ${response.status}`);
       }
 
@@ -290,10 +306,13 @@ export async function getChatbotReplyAsync(userMessage, conversationHistory = []
       if (data.useRuleBased || !data.reply) {
         return getDefaultReply(normalized);
       }
-      return { reply: data.reply, source: data.source || 'api', action: null };
+      return { reply: data.reply, source: data.source || 'api', action: null, messages: data.messages || [] };
 
     } catch (apiError) {
       if (apiError.name === 'AbortError') {
+        if (signal?.aborted) {
+          throw apiError;
+        }
         console.warn('API request timed out, using rule-based fallback');
       } else {
         console.warn('API unavailable, using rule-based fallback:', apiError.message);
@@ -301,10 +320,15 @@ export async function getChatbotReplyAsync(userMessage, conversationHistory = []
       return getDefaultReply(normalized);
     }
   } catch (error) {
+    if (error.name === 'AbortError' && signal?.aborted) {
+      throw error;
+    }
     console.error('Chat logic error:', error);
+    const errText = "Something went wrong on my side. Please try again or use the Contact section.";
     return {
-      reply: "Something went wrong on my side. Please try again or use the Contact section.",
+      reply: errText,
       source: 'error',
+      messages: [{ role: 'assistant', content: errText }]
     };
   }
 }
@@ -321,6 +345,7 @@ async function consumeSSEStream(response, onToken) {
   let source = 'api';
   let pendingAction = null;
   let inactivityTimer = null;
+  let streamMessages = [];
 
   const resetInactivityTimer = () => {
     clearTimeout(inactivityTimer);
@@ -329,6 +354,7 @@ async function consumeSSEStream(response, onToken) {
 
   try {
     resetInactivityTimer();
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
@@ -365,6 +391,7 @@ async function consumeSSEStream(response, onToken) {
                 break;
               case 'done':
                 source = data.source || 'api';
+                streamMessages = data.messages || [];
                 break;
               case 'error':
                 throw new Error(data.error || 'Stream error');
@@ -381,11 +408,11 @@ async function consumeSSEStream(response, onToken) {
     }
 
     clearTimeout(inactivityTimer);
-    return { reply: fullContent, source, action: pendingAction };
+    return { reply: fullContent, source, action: pendingAction, messages: streamMessages };
   } catch (err) {
     clearTimeout(inactivityTimer);
     if (fullContent.length > 0) {
-      return { reply: fullContent, source: 'api', action: pendingAction };
+      return { reply: fullContent, source: 'api', action: pendingAction, messages: streamMessages };
     }
     throw err;
   }
@@ -398,9 +425,10 @@ function getDefaultReply(normalized) {
   for (const { keywords, response } of intents) {
     const matched = keywords.some((kw) => matches(normalized, kw));
     if (matched) {
-      return { reply: response(), source: 'rule-based' };
+      const text = response();
+      return { reply: text, source: 'rule-based', messages: [{ role: 'assistant', content: text }] };
     }
   }
-  return { reply: FALLBACK_REPLY, source: 'rule-based' };
+  return { reply: FALLBACK_REPLY, source: 'rule-based', messages: [{ role: 'assistant', content: FALLBACK_REPLY }] };
 }
 

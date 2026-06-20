@@ -18,7 +18,7 @@ class ErrorBoundary extends Component {
 
     componentDidCatch(error, errorInfo) {
         // Log error to console in development
-        if (process.env.NODE_ENV === "development") {
+        if (import.meta.env.DEV) {
             console.error("ErrorBoundary caught an error:", error, errorInfo);
         }
         // In production, send to error tracking service like Sentry

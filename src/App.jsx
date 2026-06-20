@@ -3,7 +3,6 @@ import { useState, useEffect, lazy, Suspense, startTransition } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { FaArrowUp } from "react-icons/fa";
-import { Helmet } from "react-helmet-async";
 
 const SITE_URL = "https://mihirkudale.com";
 const OG_IMAGE = "https://i.postimg.cc/gjnbb9xF/80c8c743-9757-4139-b053-b2b33bce6626.png";
@@ -83,8 +82,9 @@ function App() {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("theme");
       if (saved === "light" || saved === "dark") return saved;
+      if (window.matchMedia("(prefers-color-scheme: dark)").matches) return "dark";
     }
-    return "light"; // Hard default to light mode (white) for new visitors
+    return "light";
   });
   const location = useLocation();
 
@@ -124,50 +124,57 @@ function App() {
     );
   }, []);
 
+  // Dynamically update document title and head metadata on route changes
+  useEffect(() => {
+    const currentMeta = ROUTE_META[location.pathname] ?? ROUTE_META["/"];
+    document.title = currentMeta.title;
+
+    // Update meta description
+    let descriptionTag = document.querySelector('meta[name="description"]');
+    if (!descriptionTag) {
+      descriptionTag = document.createElement('meta');
+      descriptionTag.name = 'description';
+      document.head.appendChild(descriptionTag);
+    }
+    descriptionTag.setAttribute('content', currentMeta.description);
+
+    // Update OpenGraph tags
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) ogTitle.setAttribute('content', currentMeta.title);
+
+    const ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogDesc) ogDesc.setAttribute('content', currentMeta.description);
+
+    const ogUrl = document.querySelector('meta[property="og:url"]');
+    if (ogUrl) ogUrl.setAttribute('content', `${SITE_URL}${location.pathname}`);
+
+    const ogImage = document.querySelector('meta[property="og:image"]');
+    if (ogImage) ogImage.setAttribute('content', OG_IMAGE);
+
+    // Update Twitter tags
+    const twitterTitle = document.querySelector('meta[name="twitter:title"]');
+    if (twitterTitle) twitterTitle.setAttribute('content', currentMeta.title);
+
+    const twitterDesc = document.querySelector('meta[name="twitter:description"]');
+    if (twitterDesc) twitterDesc.setAttribute('content', currentMeta.description);
+
+    // Update canonical link
+    let canonicalLink = document.querySelector('link[rel="canonical"]');
+    if (!canonicalLink) {
+      canonicalLink = document.createElement('link');
+      canonicalLink.rel = 'canonical';
+      document.head.appendChild(canonicalLink);
+    }
+    canonicalLink.setAttribute('href', `${SITE_URL}${location.pathname}`);
+  }, [location.pathname]);
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const meta = ROUTE_META[location.pathname] ?? ROUTE_META["/"];
-
   return (
     <div className="min-h-dvh bg-bg-secondary text-text-primary selection:bg-accent-primary-light/30 selection:text-text-primary transition-colors duration-300">
-      <Helmet>
-        <title>{meta.title}</title>
-        <meta name="description" content={meta.description} />
-        <meta property="og:title" content={meta.title} />
-        <meta property="og:description" content={meta.description} />
-        <meta property="og:url" content={`${SITE_URL}${location.pathname}`} />
-        <meta property="og:image" content={OG_IMAGE} />
-        <meta name="twitter:title" content={meta.title} />
-        <meta name="twitter:description" content={meta.description} />
-        <link rel="canonical" href={`${SITE_URL}${location.pathname}`} />
-        
-        {/* Google-level JSON-LD Structured Data Schema */}
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Person",
-            "name": "Mihir Kudale",
-            "jobTitle": "Data Scientist & AI Developer",
-            "url": SITE_URL,
-            "sameAs": [
-              "https://github.com/mihirkudale94",
-              "https://linkedin.com/in/mihirkudale"
-            ],
-            "knowsAbout": [
-              "Data Science",
-              "Machine Learning",
-              "AI Development",
-              "Data Analytics",
-              "Python",
-              "SQL",
-              "Power BI",
-              "Tableau"
-            ]
-          })}
-        </script>
-      </Helmet>
+
       {/* Scroll progress bar */}
       <div
         className="fixed top-0 left-0 z-[100] h-[3px] bg-gradient-to-r from-blue-500 to-violet-500 transition-all duration-75 ease-out"

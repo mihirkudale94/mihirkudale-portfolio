@@ -6,6 +6,22 @@ import { TiltCard } from "../ui/TiltCard";
 
 const MAX_VISIBLE_TAGS = 4;
 
+// Metrics highlight helper (defined outside component to avoid recreation on render)
+const highlightMetrics = (text) => {
+  if (!text) return "";
+  const regex = /(\b\d+(?:\.\d+)?%?\s*(?:more|less|greater|fewer|increase|decrease|reduction|performance|improvement|gain|latency|speedup|accuracy|boost|efficiency|faster|slower|x)?\b|Amazon|Power BI|SQL|Python|Generative AI|Tableau|Excel|Blinkit)/gi;
+  const parts = text.split(regex);
+  return parts.map((part, i) =>
+    regex.test(part) ? (
+      <strong key={i} className="font-extrabold text-text-primary underline decoration-accent-primary/20 decoration-2 underline-offset-2">
+        {part}
+      </strong>
+    ) : (
+      part
+    )
+  );
+};
+
 export const Projects = () => {
   const [activeTech, setActiveTech] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
@@ -108,21 +124,7 @@ export const Projects = () => {
                 const showLive = Boolean(project.demo?.trim());
                 const hasGithub = Boolean(project.github?.trim());
 
-                // Metrics highlight helper
-                const highlightMetrics = (text) => {
-                  if (!text) return "";
-                  const regex = /(\b\d+(?:\.\d+)?%?\s*(?:more|less|greater|fewer|increase|decrease|reduction|performance|improvement|gain|latency|speedup|accuracy|boost|efficiency|faster|slower|x)?\b|Amazon|Power BI|SQL|Python|Generative AI|Tableau|Excel|Blinkit)/gi;
-                  const parts = text.split(regex);
-                  return parts.map((part, i) =>
-                    regex.test(part) ? (
-                      <strong key={i} className="font-extrabold text-text-primary underline decoration-accent-primary/20 decoration-2 underline-offset-2">
-                        {part}
-                      </strong>
-                    ) : (
-                      part
-                    )
-                  );
-                };
+
 
                 return (
                   <motion.div
@@ -130,7 +132,7 @@ export const Projects = () => {
                     initial={{ opacity: 0, scale: 0.9, y: 30 }}
                     whileInView={{ opacity: 1, scale: 1, y: 0 }}
                     viewport={{ once: true, margin: "-50px" }}
-                    transition={{ duration: 0.4, delay: (index % 3) * 0.1, type: "spring" }}
+                    transition={{ duration: 0.3, type: "spring", stiffness: 100, damping: 15 }}
                     exit={{ opacity: 0, scale: 0.9 }}
                     key={`${project.title}-${index}`}
                     className="group relative flex flex-col h-full"

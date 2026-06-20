@@ -63,7 +63,11 @@ const AboutMe = () => {
                 visible: { opacity: 1, scale: 1, y: 0, transition: { type: "spring", stiffness: 120, damping: 20 } },
               }}
               whileHover={{ y: -5 }}
-              className="glass-card p-8 space-y-4 border border-glass-border bg-bg-secondary/45 group"
+              className={`glass-card p-8 space-y-4 border border-glass-border bg-bg-secondary/45 group ${
+                index === aboutMeData.sections.length - 1 && aboutMeData.sections.length % 2 !== 0
+                  ? "md:col-span-2"
+                  : ""
+              }`}
             >
               {/* Accent bar */}
               <div className="h-1 w-12 rounded-full bg-accent-primary mb-2 group-hover:w-20 transition-all duration-500" />

@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { chatbotConfig } from "../constants/chatbot";
 import { getChatbotReplyAsync } from "../utils/chatbotLogic";
 
@@ -53,25 +53,48 @@ export function useChatMessages(initialMessages) {
   const [streaming, setStreaming] = useState(false);
   const [slowResponse, setSlowResponse] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
+  
+  const [rawHistory, setRawHistory] = useState(() => [
+    { role: "assistant", content: chatbotConfig.welcomeMessage }
+  ]);
 
   const slowTimerRef = useRef(null);
+  const abortControllerRef = useRef(null);
+
   // Stable ref so dispatchMessage always reads latest messages without
   // needing them in its dependency array (avoids stale closure)
   const messagesRef = useRef(messages);
   messagesRef.current = messages;
 
+  const rawHistoryRef = useRef(rawHistory);
+  rawHistoryRef.current = rawHistory;
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
+
   const dispatchMessage = useCallback(async (text) => {
     if (!text || loading) return;
+
+    // Abort any existing active request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
 
     setSuggestions([]);
     setLoading(true);
     setSlowResponse(false);
 
-    // Capture history before any state updates
-    const conversationHistory = messagesRef.current.slice(-20).map((msg) => ({
-      role: msg.role === "user" ? "user" : "assistant",
-      content: msg.content,
-    }));
+    // Capture history including full tool conversations
+    const historyToSend = [...rawHistoryRef.current, { role: "user", content: text }];
+    setRawHistory(historyToSend);
 
     setMessages((prev) => [...prev, { id: nextMessageId(), role: "user", content: text }]);
 
@@ -86,9 +109,9 @@ export function useChatMessages(initialMessages) {
     setStreaming(true);
 
     try {
-      const { reply, source, action } = await getChatbotReplyAsync(
+      const { reply, source, action, messages: newMessages } = await getChatbotReplyAsync(
         text,
-        conversationHistory,
+        historyToSend,
         (token, fullReplacement) => {
           clearTimeout(slowTimerRef.current);
           setSlowResponse(false);
@@ -101,7 +124,8 @@ export function useChatMessages(initialMessages) {
               };
             })
           );
-        }
+        },
+        controller.signal
       );
 
       if (action) executeAction(action);
@@ -113,8 +137,18 @@ export function useChatMessages(initialMessages) {
         })
       );
 
+      if (newMessages && newMessages.length > 0) {
+        setRawHistory((prev) => [...prev, ...newMessages]);
+      } else {
+        setRawHistory((prev) => [...prev, { role: "assistant", content: reply || "" }]);
+      }
+
       setSuggestions(getFollowUpSuggestions(text));
     } catch (error) {
+      if (controller.signal.aborted) {
+        // Ignored because request was explicitly cancelled (unmount or override)
+        return;
+      }
       console.error("Chat error:", error);
       setMessages((prev) => {
         const hasPlaceholder = prev.some((m) => m.id === botMsgId);
@@ -140,10 +174,12 @@ export function useChatMessages(initialMessages) {
         ];
       });
     } finally {
-      clearTimeout(slowTimerRef.current);
-      setSlowResponse(false);
-      setLoading(false);
-      setStreaming(false);
+      if (!controller.signal.aborted) {
+        clearTimeout(slowTimerRef.current);
+        setSlowResponse(false);
+        setLoading(false);
+        setStreaming(false);
+      }
     }
   }, [loading]);
 

@@ -39,14 +39,17 @@ const Certifications = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {certifications.map((cert, index) => {
               const isMicrosoft = cert.issuer?.toLowerCase().includes("microsoft");
+              const CardComponent = cert.link ? "a" : "div";
               return (
-                <a
+                <CardComponent
                   key={index}
-                  href={cert.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`Open ${cert.title} by ${cert.issuer}`}
-                  className={`flex items-center gap-5 glass-card p-6 hover:-translate-y-1 transition-all duration-300 group ${
+                  href={cert.link || undefined}
+                  target={cert.link ? "_blank" : undefined}
+                  rel={cert.link ? "noopener noreferrer" : undefined}
+                  aria-label={cert.link ? `Open ${cert.title} by ${cert.issuer}` : undefined}
+                  className={`flex items-center gap-5 glass-card p-6 transition-all duration-300 group ${
+                    cert.link ? "hover:-translate-y-1 cursor-pointer" : "cursor-default"
+                  } ${
                     isMicrosoft 
                       ? "border-accent-primary bg-accent-primary-light/5 hover:border-accent-primary hover:shadow-[0_10px_35px_rgba(59,130,246,0.12)]" 
                       : "bg-bg-primary border-glass-border"
@@ -71,7 +74,7 @@ const Certifications = () => {
                       {cert.issuer}
                     </span>
                   </div>
-                </a>
+                </CardComponent>
               );
             })}
           </div>

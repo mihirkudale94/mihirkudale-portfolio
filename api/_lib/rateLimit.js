@@ -9,6 +9,8 @@
  * - UPSTASH_REDIS_REST_TOKEN
  */
 
+import { logger } from './logger.js';
+
 let redisClient = null;
 let redisInitialized = false;
 
@@ -26,9 +28,9 @@ async function getRedis() {
                 url: process.env.UPSTASH_REDIS_REST_URL,
                 token: process.env.UPSTASH_REDIS_REST_TOKEN,
             });
-            console.log('[RateLimit] Using Upstash Redis');
+            logger.info('[RateLimit] Using Upstash Redis');
         } catch (err) {
-            console.warn('[RateLimit] Upstash Redis init failed, falling back to in-memory:', err.message);
+            logger.warn(`[RateLimit] Upstash Redis init failed, falling back to in-memory: ${err.message}`);
             redisClient = null;
         }
     }
@@ -38,6 +40,7 @@ async function getRedis() {
 
 // In-memory fallback (only effective within a single serverless instance)
 const memoryMap = new Map();
+const MAX_MEMORY_KEYS = 1000;
 
 /**
  * Check if a client has exceeded the rate limit.
@@ -73,16 +76,33 @@ async function redisRateLimit(redis, clientId) {
 
         return count > RATE_LIMIT.maxRequests;
     } catch (err) {
-        console.error('[RateLimit] Redis error, allowing request:', err.message);
-        return false;
+        logger.error(`[RateLimit] Redis error, falling back to in-memory: ${err.message}`);
+        return memoryRateLimit(clientId);
     }
 }
 
 /**
- * Simple in-memory rate limit (per-instance only).
+ * Simple in-memory rate limit with memory-growth bounding (prevents serverless leaks).
  */
 function memoryRateLimit(clientId) {
     const now = Date.now();
+
+    // Bound memory size to prevent OOM
+    if (memoryMap.size > MAX_MEMORY_KEYS) {
+        for (const [key, val] of memoryMap.entries()) {
+            if (now > val.resetTime) {
+                memoryMap.delete(key);
+            }
+        }
+        // Force prune oldest if still exceeding bounds
+        if (memoryMap.size > MAX_MEMORY_KEYS) {
+            const keysToPrune = Array.from(memoryMap.keys()).slice(0, Math.floor(MAX_MEMORY_KEYS / 2));
+            for (const key of keysToPrune) {
+                memoryMap.delete(key);
+            }
+        }
+    }
+
     const data = memoryMap.get(clientId) || { count: 0, resetTime: now + RATE_LIMIT.windowMs };
 
     if (now > data.resetTime) {

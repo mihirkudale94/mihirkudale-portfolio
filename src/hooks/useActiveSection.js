@@ -13,6 +13,8 @@ export function useActiveSection(sectionIds, options = { threshold: 0.2, rootMar
   const [activeSection, setActiveSection] = useState("home");
   const location = useLocation();
 
+  const serializedSectionIds = sectionIds.join(",");
+
   useEffect(() => {
     // 1. Sub-route path fallback (e.g. /projects -> "projects")
     const path = location.pathname.replace("/", "").toLowerCase();
@@ -41,7 +43,8 @@ export function useActiveSection(sectionIds, options = { threshold: 0.2, rootMar
         if (el) observer.unobserve(el);
       });
     };
-  }, [sectionIds, location.pathname, options.threshold, options.rootMargin]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [serializedSectionIds, location.pathname, options.threshold, options.rootMargin]);
 
   return activeSection;
 }

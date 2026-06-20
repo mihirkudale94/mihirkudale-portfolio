@@ -1,17 +1,8 @@
-import { useCallback } from "react";
 import { Send } from "lucide-react";
 import { chatbotConfig } from "../../constants/chatbot";
 
 export function ChatInput({ inputRef, input, onChange, onSend, loading }) {
-  const handleKeyDown = useCallback(
-    (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        onSend();
-      }
-    },
-    [onSend]
-  );
+
 
   const onSubmit = (e) => {
     e.preventDefault();

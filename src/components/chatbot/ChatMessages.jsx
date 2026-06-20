@@ -9,19 +9,39 @@ export function ChatMessages({
   prefersReducedMotion,
 }) {
   const messagesEndRef = useRef(null);
+  const containerRef = useRef(null);
+  const isAtBottomRef = useRef(true);
 
-  const scrollToBottom = useCallback(() => {
+  const handleScroll = () => {
+    if (!containerRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
+    // Allow a 50px threshold to determine if user is at the bottom
+    isAtBottomRef.current = scrollHeight - scrollTop - clientHeight < 50;
+  };
+
+  const scrollToBottom = useCallback((instant = false) => {
+    if (!isAtBottomRef.current) return;
     messagesEndRef.current?.scrollIntoView({
-      behavior: prefersReducedMotion ? "auto" : "smooth",
+      // Use instant scroll during rapid token streaming to prevent layout thrashing
+      behavior: (prefersReducedMotion || instant) ? "auto" : "smooth",
     });
   }, [prefersReducedMotion]);
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages, scrollToBottom]);
+    scrollToBottom(streaming);
+  }, [messages, streaming, scrollToBottom]);
+
+  useEffect(() => {
+    if (loading) {
+      isAtBottomRef.current = true; // Auto scroll on new query start
+      scrollToBottom(true);
+    }
+  }, [loading, scrollToBottom]);
 
   return (
     <div
+      ref={containerRef}
+      onScroll={handleScroll}
       className="flex-1 overflow-y-auto p-5 space-y-5 bg-bg-secondary/30"
       aria-live="polite"
       aria-atomic="false"

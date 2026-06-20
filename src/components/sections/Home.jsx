@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { MagneticButton } from "../ui/MagneticButton";
 import { TiltCard } from "../ui/TiltCard";
 import { InteractiveGlow } from "../ui/InteractiveGlow";
+import { ParticleCanvas } from "../ui/ParticleCanvas";
 
 export const Home = () => {
   return (
@@ -15,6 +16,7 @@ export const Home = () => {
     >
       {/* ── Interactive Generative Glow (2026) ── */}
       <InteractiveGlow />
+      <ParticleCanvas />
 
       {/* ── Subtle Dot grid texture overlay ── */}
       <div
@@ -41,10 +43,13 @@ export const Home = () => {
               {homeData.roles}
             </div>
 
-            {/* Name headline - Kinetic Typography */}
-            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight text-text-primary flex flex-wrap items-center gap-x-2">
-              <span className="mr-2">Hi, I'm</span>
-              <div className="flex space-x-[0.05em]">
+            {/* Name headline - Kinetic Typography with accessibility support */}
+            <h1 
+              className="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight text-text-primary flex flex-wrap items-center gap-x-2"
+              aria-label={`Hi, I'm ${homeData.name}`}
+            >
+              <span className="mr-2" aria-hidden="true">Hi, I'm</span>
+              <div className="flex space-x-[0.05em]" aria-hidden="true">
                 {homeData.name.split("").map((char, index) => (
                   <motion.span
                     key={index}
@@ -157,7 +162,7 @@ export const Home = () => {
                   height={homeData.image.height}
                   className="relative w-[280px] md:w-[380px] h-auto object-cover rounded-[2.5rem] shadow-[0_20px_40px_-10px_rgba(0,0,0,0.12)]"
                   loading="eager"
-                  fetchpriority="high"
+                  fetchPriority="high"
                   decoding="async"
                   referrerPolicy="no-referrer"
                 />

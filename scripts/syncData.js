@@ -2,22 +2,32 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { homeData } from '../src/constants/home.js';
-import { aboutMeData } from '../src/constants/aboutme.js';
-import { contactConfig } from '../src/constants/contacts.js';
-import { educationList } from '../src/constants/education.js';
-import { experiences } from '../src/constants/workexperience.js';
-import { certifications } from '../src/constants/certifications.js';
-import { categories } from '../src/constants/skills.js';
-import { allProjects } from '../src/constants/projects.js';
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+const rawPath = path.join(__dirname, '../src/data', 'portfolio-raw.json');
 const jsonPath = path.join(__dirname, '../api/data', 'portfolio.json');
 
-console.log('--- Syncing Frontend Data to Backend LLM ---');
+console.log('--- Syncing Raw Unified Portfolio JSON to Backend LLM ---');
 
 try {
+  if (!fs.existsSync(rawPath)) {
+    throw new Error(`Raw portfolio data file not found at ${rawPath}`);
+  }
+
+  const rawData = JSON.parse(fs.readFileSync(rawPath, 'utf8'));
+
+  const {
+    homeData,
+    aboutMeData,
+    contactConfig,
+    educationList,
+    experiences,
+    certifications,
+    skills,
+    allProjects,
+  } = rawData;
+
   const portfolio = {
     about: {
       name: homeData.name,
@@ -57,7 +67,7 @@ try {
       issuer: c.issuer,
       link: c.link ?? null,
     })),
-    skills: categories,
+    skills: skills,
     projects: allProjects.map((p) => ({
       title: p.title,
       description: p.description,
@@ -69,7 +79,7 @@ try {
 
   fs.writeFileSync(jsonPath, JSON.stringify(portfolio, null, 4));
 
-  console.log(`✅ Synced all sections from frontend constants:`);
+  console.log(`✅ Synced and compressed all sections from raw unified JSON:`);
   console.log(`   about, contact, education (${portfolio.education.length}), experience (${portfolio.experience.length}), certifications (${portfolio.certifications.length}), skills (${portfolio.skills.length} categories), projects (${portfolio.projects.length})`);
   console.log('');
 } catch (error) {

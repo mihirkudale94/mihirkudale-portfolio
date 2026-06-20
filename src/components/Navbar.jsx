@@ -10,6 +10,9 @@ export const Navbar = ({ menuOpen, setMenuOpen, theme, setTheme }) => {
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [menuOpen]);
 
   useEffect(() => {
