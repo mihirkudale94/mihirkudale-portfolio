@@ -38,6 +38,8 @@ export function ChatMessages({
     }
   }, [loading, scrollToBottom]);
 
+  let lastQuestion;
+
   return (
     <div
       ref={containerRef}
@@ -46,9 +48,12 @@ export function ChatMessages({
       aria-live="polite"
       aria-atomic="false"
     >
-      {messages.map((msg) => (
-        <ChatMessage key={msg.id} msg={msg} />
-      ))}
+      {messages.map((msg) => {
+        // Carry the most recent question forward so each answer can cite
+        // what it was responding to when rated.
+        if (msg.role === "user") lastQuestion = msg.content;
+        return <ChatMessage key={msg.id} msg={msg} question={lastQuestion} />;
+      })}
 
       {loading && !streaming && (
         <div className="flex flex-col items-start gap-1">

@@ -29,7 +29,7 @@ const MAX_QUESTION_LENGTH = 200;
 const STATS_TTL_SECONDS = 60 * 60 * 24 * 90; // 90 days
 
 /** Collapse casing, punctuation and spacing so "Why hire him?" and "why hire him" count as one. */
-function normalizeQuestion(text) {
+export function normalizeQuestion(text) {
     return text
         .toLowerCase()
         .replace(/[^\w\s]/g, '')

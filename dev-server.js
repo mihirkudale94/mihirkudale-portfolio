@@ -7,6 +7,7 @@
 import express from 'express';
 import chatHandler from './api/chat.js';
 import vitalsHandler from './api/vitals.js';
+import feedbackHandler from './api/feedback.js';
 
 const app = express();
 app.use(express.json());
@@ -27,6 +28,7 @@ function vercelHandler(handler) {
 
 app.all('/api/chat',   vercelHandler(chatHandler));
 app.all('/api/vitals', vercelHandler(vitalsHandler));
+app.all('/api/feedback', vercelHandler(feedbackHandler));
 
 const PORT = 3001;
 app.listen(PORT, () => {

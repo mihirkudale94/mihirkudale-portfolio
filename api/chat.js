@@ -15,6 +15,7 @@
  * Optional Environment Variables:
  * - UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN: For rate limiting and question analytics
  * - GITHUB_TOKEN: To bypass GitHub API rate limit
+ * - MAX_DAILY_LLM_CALLS: Daily agent-call ceiling before rule-based fallback (default 500)
  * - LANGSMITH_TRACING=true + LANGSMITH_API_KEY + LANGSMITH_PROJECT: For LangSmith tracing
  */
 
@@ -26,6 +27,14 @@ const portfolio = require('./data/portfolio.json');
 
 import { isRateLimited } from './_lib/rateLimit.js';
 import { logChatEvent } from './_lib/analytics.js';
+import { getCachedAnswer, setCachedAnswer } from './_lib/responseCache.js';
+import { consumeLlmCall } from './_lib/budget.js';
+import {
+  sanitizeInput,
+  detectPromptInjection,
+  validateOutput,
+  INJECTION_REPLY,
+} from './_lib/guardrails.js';
 import { logger } from './_lib/logger.js';
 
 // Static imports to prevent serverless import waterfalls and cold start delays
@@ -35,61 +44,6 @@ import { StateGraph, MessagesAnnotation, END, START } from '@langchain/langgraph
 import { HumanMessage, SystemMessage, AIMessage, ToolMessage } from '@langchain/core/messages';
 import { ChatOpenAI } from '@langchain/openai';
 import { awaitAllCallbacks } from '@langchain/core/callbacks/promises';
-
-// --- Input Sanitization ---
-function sanitizeInput(text) {
-  if (typeof text !== 'string') return '';
-  // Avoid destructive character stripping; parameterization & UI output escaping handles safety.
-  return text.trim().slice(0, 1000);
-}
-
-// --- Prompt Injection Detection ---
-function detectPromptInjection(text) {
-  if (!text || typeof text !== 'string') return false;
-  const lower = text.toLowerCase();
-  const patterns = [
-    'ignore previous',
-    'ignore all previous',
-    'system prompt override',
-    'you are now',
-    'forget your rules',
-    'forget previous instructions',
-    'override system instructions',
-  ];
-  return patterns.some(p => lower.includes(p));
-}
-
-// --- Output Guardrails ---
-const BLOCKED_PHRASES = [
-  'i promise',
-  'guaranteed',
-  'mihir will start',
-  'mihir can start',
-  'he will join',
-  'he can join on',
-  'salary expectation',
-  'compensation',
-  'i am mihir',
-  'as mihir, i',
-  'my name is mihir',
-];
-
-/**
- * Validate agent output against guardrails.
- * Returns the original text if clean, or a safe fallback if violations found.
- */
-function validateOutput(text) {
-  if (!text || typeof text !== 'string') return text;
-
-  const lower = text.toLowerCase();
-  for (const phrase of BLOCKED_PHRASES) {
-    if (lower.includes(phrase)) {
-      logger.warn(`[Guardrail] Blocked phrase detected: "${phrase}"`);
-      return "I can share factual information about Mihir's portfolio, skills, and experience. For specific arrangements like availability or interviews, please reach out directly via the **Contact** section.";
-    }
-  }
-  return text;
-}
 
 // --- Retry Logic ---
 async function withRetry(fn, { maxRetries = 1, baseDelayMs = 1000 } = {}) {
@@ -370,7 +324,7 @@ async function getGraph() {
     apiKey: process.env.OPENROUTER_API_KEY,
     modelName: process.env.OPENROUTER_MODEL || 'openai/gpt-oss-120b',
     temperature: 0,
-    maxTokens: 512,
+    maxTokens: 800,
     configuration: {
       baseURL: 'https://openrouter.ai/api/v1',
       // OpenRouter attribution headers (optional, used for their app leaderboard)
@@ -482,9 +436,11 @@ export default async function handler(req, res) {
     const sanitized = sanitizeInput(message);
 
     // Prompt injection check (Security Guardrail)
-    if (detectPromptInjection(sanitized)) {
-      logger.warn(`[Security] Prompt injection blocked for message: "${sanitized.slice(0, 100)}..."`);
-      const blockReply = "I can only share factual details about Mihir's skills, projects, and work experience. For specific requests, please check the Contact section.";
+    const injectionLabel = detectPromptInjection(sanitized);
+    if (injectionLabel) {
+      // Log the matched rule, never the visitor's text.
+      logger.warn(`[Security] Prompt injection blocked (rule: ${injectionLabel}, length: ${sanitized.length})`);
+      const blockReply = INJECTION_REPLY;
       if (useStream) {
         res.setHeader('Content-Type', 'text/event-stream');
         res.setHeader('Cache-Control', 'no-cache');
@@ -497,6 +453,38 @@ export default async function handler(req, res) {
       }
       res.status(200).json({ reply: blockReply, useRuleBased: false, source: 'security', error: null, messages: [{ role: 'assistant', content: blockReply }] });
       await logChatEvent({ question: sanitized, outcome: 'blocked' });
+      return;
+    }
+
+    // Repeat first-turn questions are answered from cache — no agent call.
+    // Later turns depend on thread context, so they are never cached.
+    const isFirstTurn = !conversationHistory.some((m) => m?.role === 'user');
+    if (isFirstTurn) {
+      const cached = await getCachedAnswer(sanitized);
+      if (cached?.reply) {
+        logger.info('[Cache] Hit for first-turn question');
+        if (useStream) {
+          res.setHeader('Content-Type', 'text/event-stream');
+          res.setHeader('Cache-Control', 'no-cache');
+          res.setHeader('Connection', 'keep-alive');
+          if (cached.action) res.write(sseEvent('action', cached.action));
+          res.write(sseEvent('token', { content: cached.reply }));
+          res.write(sseEvent('done', { source: 'cache', messages: cached.messages ?? [] }));
+          res.end();
+        } else {
+          res.status(200).json({ reply: cached.reply, useRuleBased: false, source: 'cache', error: null, messages: cached.messages ?? [] });
+        }
+        await logChatEvent({ question: sanitized, outcome: 'cache' });
+        return;
+      }
+    }
+
+    // Daily spend ceiling. Past it the site degrades to rule-based replies
+    // rather than running up an unbounded bill on a public endpoint.
+    const budget = await consumeLlmCall();
+    if (!budget.allowed) {
+      res.status(200).json({ reply: '', useRuleBased: true, error: 'Daily limit reached' });
+      await logChatEvent({ question: sanitized, outcome: 'budget_exceeded' });
       return;
     }
 
@@ -533,7 +521,7 @@ export default async function handler(req, res) {
       messages: [...formattedHistory, new HumanMessage(`<user_query>${sanitized}</user_query>`)]
     };
     
-    logger.info(`[Agent] Starting execution for query: "${sanitized}"`);
+    logger.info(`[Agent] Starting execution (query length: ${sanitized.length})`);
 
     // --- Streaming path (SSE) ---
     if (useStream) {
@@ -543,6 +531,7 @@ export default async function handler(req, res) {
 
       let fullContent = '';
       let outcome = 'api';
+      let emittedAction = null;
       const accumulated = {};
 
       try {
@@ -568,6 +557,7 @@ export default async function handler(req, res) {
               try {
                 const toolResult = JSON.parse(messageChunk.content);
                 if (toolResult.action) {
+                  emittedAction = toolResult;
                   res.write(sseEvent('action', toolResult));
                 }
               } catch {
@@ -590,8 +580,10 @@ export default async function handler(req, res) {
         });
 
         // Apply guardrails to response
-        const validated = validateOutput(fullContent);
-        if (validated !== fullContent) {
+        const { text: validated, blockedPhrase } = validateOutput(fullContent);
+        if (blockedPhrase) {
+          logger.warn(`[Guardrail] Blocked phrase in output: "${blockedPhrase}"`);
+          outcome = 'guardrail';
           res.write(sseEvent('guardrail', { content: validated }));
         }
 
@@ -609,6 +601,14 @@ export default async function handler(req, res) {
           .filter(Boolean);
 
         res.write(sseEvent('done', { source: 'api', messages: newMessagesToReturn }));
+
+        if (isFirstTurn && !blockedPhrase && validated) {
+          await setCachedAnswer(sanitized, {
+            reply: validated,
+            messages: newMessagesToReturn,
+            action: emittedAction,
+          });
+        }
       } catch (error) {
         logger.error('Agent stream error:', error.message);
         res.write(sseEvent('error', { error: error.message, useRuleBased: true }));
@@ -639,10 +639,14 @@ export default async function handler(req, res) {
       .filter(Boolean);
 
     const finalMessage = result.messages[result.messages.length - 1];
-    const validated = validateOutput(finalMessage.content);
+    const { text: validated, blockedPhrase } = validateOutput(finalMessage.content);
+    if (blockedPhrase) logger.warn(`[Guardrail] Blocked phrase in output: "${blockedPhrase}"`);
 
     res.status(200).json({ reply: validated, useRuleBased: false, source: 'api', error: null, messages: newMessagesToReturn });
-    await logChatEvent({ question: sanitized, outcome: 'api' });
+    if (isFirstTurn && !blockedPhrase) {
+      await setCachedAnswer(sanitized, { reply: validated, messages: newMessagesToReturn, action: null });
+    }
+    await logChatEvent({ question: sanitized, outcome: blockedPhrase ? 'guardrail' : 'api' });
     await awaitAllCallbacks();
 
   } catch (error) {

@@ -1,8 +1,9 @@
 import { memo, Suspense, lazy } from "react";
+import { ChatFeedback } from "./ChatFeedback";
 
 const ReactMarkdown = lazy(() => import("react-markdown").then((m) => ({ default: m.default })));
 
-export const ChatMessage = memo(function ChatMessage({ msg }) {
+export const ChatMessage = memo(function ChatMessage({ msg, question }) {
   const isUser = msg.role === "user";
 
   return (
@@ -32,6 +33,13 @@ export const ChatMessage = memo(function ChatMessage({ msg }) {
             </div>
           )}
         </div>
+        {!isUser &&
+          !msg.isStreaming &&
+          msg.content &&
+          msg.id !== "msg-welcome" &&
+          msg.source !== "error" && (
+            <ChatFeedback question={question} answer={msg.content} />
+          )}
       </div>
     </div>
   );

@@ -24,6 +24,52 @@ function executeAction(action) {
   }
 }
 
+// Session-scoped so a refresh keeps the thread but closing the tab starts fresh.
+const STORAGE_KEY = "mk-chat-session-v1";
+const MAX_PERSISTED = 40;
+
+function loadPersisted() {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed?.messages) || !Array.isArray(parsed?.rawHistory)) return null;
+    if (parsed.messages.length === 0) return null;
+    return parsed;
+  } catch {
+    // Private mode, disabled storage, or corrupt JSON — start clean.
+    return null;
+  }
+}
+
+function persistSession(messages, rawHistory) {
+  try {
+    sessionStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        // Only known fields: isStreaming is transient and would restore a stuck spinner.
+        messages: messages.slice(-MAX_PERSISTED).map((m) => ({
+          id: m.id,
+          role: m.role,
+          content: m.content,
+          source: m.source ?? null,
+        })),
+        rawHistory: rawHistory.slice(-MAX_PERSISTED),
+      })
+    );
+  } catch {
+    // Quota exceeded or storage unavailable — persistence is best effort.
+  }
+}
+
+function clearPersisted() {
+  try {
+    sessionStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // Nothing to do if storage is unavailable.
+  }
+}
+
 function nextMessageId() {
   return `msg-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
@@ -48,15 +94,16 @@ function getFollowUpSuggestions(userText) {
 }
 
 export function useChatMessages(initialMessages) {
-  const [messages, setMessages] = useState(initialMessages);
+  const [restored] = useState(loadPersisted);
+  const [messages, setMessages] = useState(() => restored?.messages ?? initialMessages);
   const [loading, setLoading] = useState(false);
   const [streaming, setStreaming] = useState(false);
   const [slowResponse, setSlowResponse] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
   
-  const [rawHistory, setRawHistory] = useState(() => [
-    { role: "assistant", content: chatbotConfig.welcomeMessage }
-  ]);
+  const [rawHistory, setRawHistory] = useState(
+    () => restored?.rawHistory ?? [{ role: "assistant", content: chatbotConfig.welcomeMessage }]
+  );
 
   // Stable ref to the greeting state so resetChat can restore it
   const initialMessagesRef = useRef(initialMessages);
@@ -71,6 +118,13 @@ export function useChatMessages(initialMessages) {
 
   const rawHistoryRef = useRef(rawHistory);
   rawHistoryRef.current = rawHistory;
+
+  // Persist once a turn settles. Skipped mid-stream so a half-written reply
+  // is never what a refresh restores.
+  useEffect(() => {
+    if (streaming || loading) return;
+    persistSession(messages, rawHistory);
+  }, [messages, rawHistory, streaming, loading]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -217,6 +271,7 @@ export function useChatMessages(initialMessages) {
     }
     clearTimeout(slowTimerRef.current);
 
+    clearPersisted();
     setMessages(initialMessagesRef.current);
     setRawHistory([{ role: "assistant", content: chatbotConfig.welcomeMessage }]);
     setSuggestions([]);
