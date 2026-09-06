@@ -13,9 +13,9 @@
  * - OPENROUTER_API_KEY: Your OpenRouter API key from https://openrouter.ai/keys
  *
  * Optional Environment Variables:
- * - UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN: For production rate limiting
+ * - UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN: For rate limiting and question analytics
  * - GITHUB_TOKEN: To bypass GitHub API rate limit
- * - LANGCHAIN_TRACING_V2=true + LANGCHAIN_API_KEY + LANGCHAIN_PROJECT: For LangSmith tracing
+ * - LANGSMITH_TRACING=true + LANGSMITH_API_KEY + LANGSMITH_PROJECT: For LangSmith tracing
  */
 
 import { createRequire } from 'module';
@@ -25,6 +25,7 @@ const require = createRequire(import.meta.url);
 const portfolio = require('./data/portfolio.json');
 
 import { isRateLimited } from './_lib/rateLimit.js';
+import { logChatEvent } from './_lib/analytics.js';
 import { logger } from './_lib/logger.js';
 
 // Static imports to prevent serverless import waterfalls and cold start delays
@@ -33,6 +34,7 @@ import { z } from 'zod';
 import { StateGraph, MessagesAnnotation, END, START } from '@langchain/langgraph';
 import { HumanMessage, SystemMessage, AIMessage, ToolMessage } from '@langchain/core/messages';
 import { ChatOpenAI } from '@langchain/openai';
+import { awaitAllCallbacks } from '@langchain/core/callbacks/promises';
 
 // --- Input Sanitization ---
 function sanitizeInput(text) {
@@ -466,12 +468,14 @@ export default async function handler(req, res) {
     const clientId = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown';
     if (await isRateLimited(clientId)) {
       res.status(429).json({ error: 'Rate limit exceeded', useRuleBased: true });
+      await logChatEvent({ question: message, outcome: 'rate_limited' });
       return;
     }
 
     if (!process.env.OPENROUTER_API_KEY) {
       logger.warn('OPENROUTER_API_KEY not set — using rule-based fallback');
       res.status(200).json({ reply: '', useRuleBased: true, error: 'API not configured' });
+      await logChatEvent({ question: message, outcome: 'fallback' });
       return;
     }
 
@@ -488,9 +492,11 @@ export default async function handler(req, res) {
         res.write(sseEvent('token', { content: blockReply }));
         res.write(sseEvent('done', { source: 'security', messages: [{ role: 'assistant', content: blockReply }] }));
         res.end();
+        await logChatEvent({ question: sanitized, outcome: 'blocked' });
         return;
       }
       res.status(200).json({ reply: blockReply, useRuleBased: false, source: 'security', error: null, messages: [{ role: 'assistant', content: blockReply }] });
+      await logChatEvent({ question: sanitized, outcome: 'blocked' });
       return;
     }
 
@@ -536,6 +542,7 @@ export default async function handler(req, res) {
       res.setHeader('Connection', 'keep-alive');
 
       let fullContent = '';
+      let outcome = 'api';
       const accumulated = {};
 
       try {
@@ -605,9 +612,14 @@ export default async function handler(req, res) {
       } catch (error) {
         logger.error('Agent stream error:', error.message);
         res.write(sseEvent('error', { error: error.message, useRuleBased: true }));
+        outcome = 'error';
       }
 
       res.end();
+      // Deferred until after the response is flushed: no user-facing latency,
+      // but the function stays alive long enough for both to complete.
+      await logChatEvent({ question: sanitized, outcome });
+      await awaitAllCallbacks();
       return;
     }
 
@@ -630,9 +642,13 @@ export default async function handler(req, res) {
     const validated = validateOutput(finalMessage.content);
 
     res.status(200).json({ reply: validated, useRuleBased: false, source: 'api', error: null, messages: newMessagesToReturn });
+    await logChatEvent({ question: sanitized, outcome: 'api' });
+    await awaitAllCallbacks();
 
   } catch (error) {
     logger.error('Chat API error:', error);
     res.status(500).json({ reply: '', useRuleBased: true, error: error.message });
+    await logChatEvent({ question: req.body?.message, outcome: 'error' });
+    await awaitAllCallbacks();
   }
 }

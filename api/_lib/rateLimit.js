@@ -10,33 +10,9 @@
  */
 
 import { logger } from './logger.js';
-
-let redisClient = null;
-let redisInitialized = false;
+import { getRedis } from './redis.js';
 
 const RATE_LIMIT = { maxRequests: 30, windowMs: 60_000 };
-
-async function getRedis() {
-    if (redisInitialized) return redisClient;
-
-    redisInitialized = true;
-
-    if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
-        try {
-            const { Redis } = await import('@upstash/redis');
-            redisClient = new Redis({
-                url: process.env.UPSTASH_REDIS_REST_URL,
-                token: process.env.UPSTASH_REDIS_REST_TOKEN,
-            });
-            logger.info('[RateLimit] Using Upstash Redis');
-        } catch (err) {
-            logger.warn(`[RateLimit] Upstash Redis init failed, falling back to in-memory: ${err.message}`);
-            redisClient = null;
-        }
-    }
-
-    return redisClient;
-}
 
 // In-memory fallback (only effective within a single serverless instance)
 const memoryMap = new Map();

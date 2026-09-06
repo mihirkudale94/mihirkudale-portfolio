@@ -10,7 +10,8 @@
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "test": "vitest run",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "chat:stats": "node --env-file=.env.local scripts/chatStats.js"
   },
   "dependencies": {
     "@langchain/core": "^1.1.48",
