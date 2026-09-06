@@ -1,8 +1,8 @@
-import { X } from "lucide-react";
+import { RotateCcw, X } from "lucide-react";
 import { homeData } from "../../constants/home";
 import { chatbotConfig } from "../../constants/chatbot";
 
-export function ChatHeader({ onClose }) {
+export function ChatHeader({ onClose, onReset, canReset }) {
   return (
     <div className="flex items-center justify-between px-5 py-4 border-b border-glass-border bg-bg-secondary/50">
       <div className="flex items-center gap-3">
@@ -21,14 +21,27 @@ export function ChatHeader({ onClose }) {
           <p className="text-xs font-semibold text-text-tertiary">AI-powered</p>
         </div>
       </div>
-      <button
-        type="button"
-        onClick={onClose}
-        className="p-2 rounded-full text-text-tertiary hover:bg-bg-tertiary hover:text-text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-accent-primary/50"
-        aria-label="Close chat"
-      >
-        <X className="w-5 h-5" />
-      </button>
+      <div className="flex items-center gap-1">
+        {canReset && (
+          <button
+            type="button"
+            onClick={onReset}
+            className="p-2 rounded-full text-text-tertiary hover:bg-bg-tertiary hover:text-text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-accent-primary/50"
+            aria-label="Start a new chat"
+            title="Start a new chat"
+          >
+            <RotateCcw className="w-[18px] h-[18px]" />
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={onClose}
+          className="p-2 rounded-full text-text-tertiary hover:bg-bg-tertiary hover:text-text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-accent-primary/50"
+          aria-label="Close chat"
+        >
+          <X className="w-5 h-5" />
+        </button>
+      </div>
     </div>
   );
 }

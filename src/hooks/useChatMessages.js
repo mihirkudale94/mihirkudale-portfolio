@@ -58,6 +58,9 @@ export function useChatMessages(initialMessages) {
     { role: "assistant", content: chatbotConfig.welcomeMessage }
   ]);
 
+  // Stable ref to the greeting state so resetChat can restore it
+  const initialMessagesRef = useRef(initialMessages);
+
   const slowTimerRef = useRef(null);
   const abortControllerRef = useRef(null);
 
@@ -204,6 +207,24 @@ export function useChatMessages(initialMessages) {
     [loading, dispatchMessage]
   );
 
+  const resetChat = useCallback(() => {
+    // Abort any in-flight request so a late response cannot repopulate the
+    // cleared thread. dispatchMessage skips its own cleanup when aborted,
+    // so every flag is reset explicitly here.
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    clearTimeout(slowTimerRef.current);
+
+    setMessages(initialMessagesRef.current);
+    setRawHistory([{ role: "assistant", content: chatbotConfig.welcomeMessage }]);
+    setSuggestions([]);
+    setLoading(false);
+    setStreaming(false);
+    setSlowResponse(false);
+  }, []);
+
   return {
     messages,
     loading,
@@ -212,5 +233,6 @@ export function useChatMessages(initialMessages) {
     suggestions,
     sendMessage,
     handleSuggestionClick,
+    resetChat,
   };
 }

@@ -55,7 +55,7 @@ export function Chatbot() {
   const dialogRef = useRef(null);
 
   const prefersReducedMotion = usePrefersReducedMotion();
-  const { messages, loading, streaming, slowResponse, suggestions, sendMessage, handleSuggestionClick } =
+  const { messages, loading, streaming, slowResponse, suggestions, sendMessage, handleSuggestionClick, resetChat } =
     useChatMessages(initialMessages);
 
   const activeSection = useActiveSection(SECTION_IDS);
@@ -101,6 +101,12 @@ export function Chatbot() {
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [open, handleClose]);
 
+  const handleReset = useCallback(() => {
+    resetChat();
+    setInput("");
+    inputRef.current?.focus();
+  }, [resetChat]);
+
   const handleSend = useCallback(() => {
     sendMessage(input);
     setInput("");
@@ -121,7 +127,7 @@ export function Chatbot() {
             aria-labelledby="chatbot-title"
             className="fixed bottom-24 right-6 z-[100] flex flex-col w-[min(380px,calc(100vw-3rem))] h-[min(540px,72vh)] rounded-[1.5rem] bg-glass-bg backdrop-blur-2xl border border-glass-border shadow-[0_20px_60px_-15px_rgba(0,0,0,0.12)] overflow-hidden"
           >
-            <ChatHeader onClose={handleClose} />
+            <ChatHeader onClose={handleClose} onReset={handleReset} canReset={messages.length > 1} />
             <ChatMessages
               messages={messages}
               loading={loading}
