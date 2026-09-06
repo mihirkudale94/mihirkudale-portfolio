@@ -363,15 +363,15 @@ async function getGraph() {
     return { messages: newMessages };
   };
 
-  // --- LLM: Cerebras (llama-3.3-70b) ---
+  // --- LLM: Cerebras (gpt-oss-120b) ---
   const llm = new ChatOpenAI({
     apiKey: process.env.CEREBRAS_API_KEY,
-    modelName: 'llama-3.3-70b',
+    modelName: 'gpt-oss-120b',
     temperature: 0,
     maxTokens: 512,
     configuration: { baseURL: 'https://api.cerebras.ai/v1' },
   });
-  logger.info('[LLM] Using Cerebras (llama-3.3-70b)');
+  logger.info('[LLM] Using Cerebras (gpt-oss-120b)');
 
   const llmWithTools = llm.bindTools(tools);
 
