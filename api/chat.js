@@ -10,7 +10,7 @@
  * - LangSmith tracing (auto-enabled via env vars)
  *
  * Environment Variables Required:
- * - CEREBRAS_API_KEY: Your Cerebras API key from https://cerebras.ai/inference
+ * - OPENROUTER_API_KEY: Your OpenRouter API key from https://openrouter.ai/keys
  *
  * Optional Environment Variables:
  * - UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN: For production rate limiting
@@ -363,15 +363,22 @@ async function getGraph() {
     return { messages: newMessages };
   };
 
-  // --- LLM: Cerebras (gpt-oss-120b) ---
+  // --- LLM: OpenRouter (OpenAI-compatible gateway) ---
   const llm = new ChatOpenAI({
-    apiKey: process.env.CEREBRAS_API_KEY,
-    modelName: 'gpt-oss-120b',
+    apiKey: process.env.OPENROUTER_API_KEY,
+    modelName: process.env.OPENROUTER_MODEL || 'openai/gpt-oss-120b',
     temperature: 0,
     maxTokens: 512,
-    configuration: { baseURL: 'https://api.cerebras.ai/v1' },
+    configuration: {
+      baseURL: 'https://openrouter.ai/api/v1',
+      // OpenRouter attribution headers (optional, used for their app leaderboard)
+      defaultHeaders: {
+        'HTTP-Referer': 'https://mihirkudale.com',
+        'X-Title': 'Mihir Kudale Portfolio',
+      },
+    },
   });
-  logger.info('[LLM] Using Cerebras (gpt-oss-120b)');
+  logger.info(`[LLM] Using OpenRouter (${llm.modelName})`);
 
   const llmWithTools = llm.bindTools(tools);
 
@@ -462,8 +469,8 @@ export default async function handler(req, res) {
       return;
     }
 
-    if (!process.env.CEREBRAS_API_KEY) {
-      logger.warn('CEREBRAS_API_KEY not set — using rule-based fallback');
+    if (!process.env.OPENROUTER_API_KEY) {
+      logger.warn('OPENROUTER_API_KEY not set — using rule-based fallback');
       res.status(200).json({ reply: '', useRuleBased: true, error: 'API not configured' });
       return;
     }
