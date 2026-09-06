@@ -139,3 +139,75 @@ describe("getChatbotReplyAsync with API mocked", () => {
     expect(result.source).toBe("security");
   });
 });
+
+describe("rule-based intent routing", () => {
+  // These exercise the local intent matcher — the path visitors hit whenever
+  // the API is down, rate limited, or unconfigured.
+  beforeEach(() => {
+    mockFetch.mockReset();
+    mockFetch.mockRejectedValue(new Error("Network Error"));
+  });
+
+  const ask = async (q) => (await getChatbotReplyAsync(q, [])).reply;
+
+  it("answers a stack-specific project question with that stack", async () => {
+    const reply = await ask("Can you help me find Python projects?");
+    expect(reply).toContain("Python projects");
+    // Regression: the generic keyword "help" used to hijack this into the
+    // "who are you" blurb, because matching was first-match-wins.
+    expect(reply).not.toContain("I'm a chatbot on");
+  });
+
+  it("does not let a leading greeting swallow the real question", async () => {
+    const reply = await ask("hey, what are his skills?");
+    expect(reply).toContain("skill areas");
+    expect(reply).not.toContain("Hi! I'm the portfolio assistant");
+  });
+
+  it("treats a technology question as skills, not certifications", async () => {
+    // Regression: the bare keyword "google" routed any cloud question
+    // into the certifications list.
+    expect(await ask("Does Mihir use Google Cloud?")).toContain("skill areas");
+  });
+
+  it("separates 'work built with X' from 'does he know X'", async () => {
+    expect(await ask("What is his Tableau work?")).toContain("Tableau visualizations");
+    expect(await ask("do you know python?")).toContain("skill areas");
+  });
+
+  it("answers a named project from its real description", async () => {
+    const reply = await ask("Tell me about the Amazon Sales Dashboard project");
+    expect(reply).toContain("Amazon Sales Dashboard");
+    expect(reply).toContain("Power BI dashboard to analyze product sales");
+  });
+
+  it("recognises common testimonial phrasings", async () => {
+    expect(await ask("what do people say about him?")).toContain("Krish Naik");
+  });
+
+  it("keeps an intent's keywords alive alongside its context test", async () => {
+    // Regression: scoreIntent returned early on test(), so keyword-only
+    // phrasings on the same intent stopped matching entirely.
+    expect(await ask("what do you use?")).toContain("skill areas");
+  });
+
+  it("matches skill names that normalisation rewrites", async () => {
+    // Regression: the catalogue held "Node.js" but input normalises to "node js".
+    expect(await ask("does he know node.js")).toContain("skill areas");
+  });
+
+  it("answers hire questions across phrasings", async () => {
+    expect(await ask("why should we hire him")).toContain("reasons to hire");
+    expect(await ask("is he a good fit for a data engineer role")).toContain("reasons to hire");
+  });
+
+  it("stays on topic for unrelated questions", async () => {
+    expect(await ask("what is the capital of France")).toContain("didn't quite get that");
+  });
+
+  it("still routes education, contact and certification questions", async () => {
+    expect(await ask("Where did he study?")).toContain("education");
+    expect(await ask("how do I contact him?")).toContain("Email");
+    expect(await ask("what certifications does he have?")).toContain("certifications include");
+  });
+});

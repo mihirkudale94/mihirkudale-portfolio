@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { homeData } from "../../constants/home";
+import { MessageCircle } from "lucide-react";
 
 export function ChatToggleButton({ onOpen }) {
   return (
@@ -13,19 +13,16 @@ export function ChatToggleButton({ onOpen }) {
         transition={{ type: "spring", stiffness: 400, damping: 17 }}
         type="button"
         onClick={onOpen}
-        className="flex items-center gap-2.5 p-1.5 pe-5 rounded-full bg-bg-primary text-text-primary border border-glass-border shadow-[0_10px_25px_rgba(0,0,0,0.06)] hover:shadow-[0_15px_35px_rgba(37,99,235,0.08)] hover:border-accent-primary-light transition-colors duration-300 focus:outline-none focus:ring-4 focus:ring-accent-primary-light/20"
+        className="flex items-center p-1.5 rounded-full bg-bg-primary text-text-primary border border-glass-border shadow-[0_10px_25px_rgba(0,0,0,0.06)] hover:shadow-[0_15px_35px_rgba(37,99,235,0.08)] hover:border-accent-primary-light transition-colors duration-300 focus:outline-none focus:ring-4 focus:ring-accent-primary-light/20"
         aria-label="Open chat assistant"
         aria-haspopup="dialog"
       >
         <div className="relative">
-          <img
-            src={homeData.image.src}
-            alt="Mihir Kudale - Portfolio chat assistant"
-            className="w-11 h-11 rounded-full object-cover"
-          />
+          <span className="flex items-center justify-center w-11 h-11 rounded-full bg-accent-primary text-white">
+            <MessageCircle className="w-5 h-5" aria-hidden="true" />
+          </span>
           <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-bg-primary" />
         </div>
-        <span className="text-sm font-bold tracking-tight text-text-secondary">Ask me anything</span>
       </motion.button>
     </div>
   );

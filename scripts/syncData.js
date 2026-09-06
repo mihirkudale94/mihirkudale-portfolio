@@ -26,6 +26,7 @@ try {
     certifications,
     skills,
     allProjects,
+    testimonials,
   } = rawData;
 
   const portfolio = {
@@ -39,6 +40,11 @@ try {
       availability: contactConfig.availabilityText,
       roles: homeData.roles,
       badges: homeData.badges,
+      // Long-form About copy — grounding for "what does he do" style questions.
+      sections: (aboutMeData.sections ?? []).map((sec) => ({
+        title: sec.title,
+        content: sec.content,
+      })),
     },
     contact: {
       email: contactConfig.socials.email.replace('mailto:', ''),
@@ -68,6 +74,12 @@ try {
       link: c.link ?? null,
     })),
     skills: skills,
+    testimonials: (testimonials ?? []).map((t) => ({
+      name: t.name,
+      role: t.role,
+      quote: t.quote,
+      linkedin: t.linkedin ?? null,
+    })),
     projects: allProjects.map((p) => ({
       title: p.title,
       description: p.description,
@@ -80,7 +92,7 @@ try {
   fs.writeFileSync(jsonPath, JSON.stringify(portfolio, null, 4));
 
   console.log(`✅ Synced and compressed all sections from raw unified JSON:`);
-  console.log(`   about, contact, education (${portfolio.education.length}), experience (${portfolio.experience.length}), certifications (${portfolio.certifications.length}), skills (${portfolio.skills.length} categories), projects (${portfolio.projects.length})`);
+  console.log(`   about, contact, education (${portfolio.education.length}), experience (${portfolio.experience.length}), certifications (${portfolio.certifications.length}), skills (${portfolio.skills.length} categories), testimonials (${portfolio.testimonials.length}), projects (${portfolio.projects.length})`);
   console.log('');
 } catch (error) {
   console.error('❌ Failed to sync portfolio data:', error.message);

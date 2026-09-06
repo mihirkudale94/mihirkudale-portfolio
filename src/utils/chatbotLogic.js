@@ -35,8 +35,107 @@ function matches(normalized, keyword) {
   return normalized.includes(keyword);
 }
 
+/** Words that signal the visitor is asking about built work, not about a skill. */
+const PROJECT_CONTEXT = ["project", "projects", "work", "worked", "built", "build", "dashboard", "dashboards", "portfolio", "show", "made", "created", "example", "examples"];
+
+/** True when the message names a stack AND is asking about work built with it. */
+function stackProjectQuery(normalized, stackTerms) {
+  const namesStack = stackTerms.some((t) => matches(normalized, t));
+  return namesStack && PROJECT_CONTEXT.some((w) => matches(normalized, w));
+}
+
+/**
+ * Score an intent against the input: the length of its longest matching keyword.
+ * Longer matches are more specific, so "python projects" (15) beats "help" (4),
+ * which stops generic keywords from swallowing specific questions.
+ * An intent may instead supply test() for context-sensitive matching.
+ * Returns 0 when nothing matches.
+ */
+function scoreIntent(normalized, intent) {
+  let best = 0;
+  for (const kw of intent.keywords ?? []) {
+    if (matches(normalized, kw) && kw.length > best) best = kw.length;
+  }
+  // test() is a strong, context-aware signal, but it must not suppress the
+  // intent's keywords — an intent can carry both.
+  if (intent.test && intent.test(normalized)) best = Math.max(best, 100);
+  return best;
+}
+
+/**
+ * Skill names normalised the same way as user input, so "Node.js" can match
+ * the normalised "node js". Built lazily: normalizeInput depends on consts
+ * declared further down this module, so calling it at load time would hit the
+ * temporal dead zone.
+ */
+let knownSkillsCache = null;
+function getKnownSkills() {
+  if (!knownSkillsCache) {
+    knownSkillsCache = categories
+      .flatMap((c) => (c.skills ?? []).map((sk) => normalizeInput(sk.name)))
+      .filter(Boolean);
+  }
+  return knownSkillsCache;
+}
+
+/**
+ * True when the message names a technology but is NOT asking to see built work.
+ * "does he know python" is a skills question; "python projects" is not.
+ */
+function skillQuery(normalized) {
+  if (PROJECT_CONTEXT.some((w) => matches(normalized, w))) return false;
+  return getKnownSkills().some((sk) => matches(normalized, sk));
+}
+
+/** Stopwords that must never on their own identify a project. */
+const TITLE_STOPWORDS = new Set(["the", "and", "for", "with", "using", "project", "projects", "data", "analysis", "dashboard", "app", "system", "model", "prediction", "tell", "about", "your", "his", "what", "show"]);
+
+/**
+ * Find a project whose title is named in the message.
+ * Requires two distinctive title words to match (or one long, rare one),
+ * so "dashboard" alone cannot select an arbitrary project.
+ */
+function findNamedProject(normalized) {
+  let best = null;
+  let bestHits = 0;
+  for (const p of allProjects) {
+    const words = normalizeInput(p.title)
+      .split(" ")
+      .filter((w) => w.length > 2 && !TITLE_STOPWORDS.has(w));
+    if (!words.length) continue;
+    const hits = words.filter((w) => matches(normalized, w)).length;
+    const strong = hits >= 2 || (hits === 1 && words.length === 1 && words[0].length >= 6);
+    if (strong && hits > bestHits) {
+      bestHits = hits;
+      best = p;
+    }
+  }
+  return best;
+}
+
 // Intent keywords → response builder. Order matters: first match wins.
 const intents = [
+  {
+    // Highest priority: a specific project was named, so answer about that project.
+    test: (n) => findNamedProject(n) !== null,
+    response: (n) => {
+      const p = findNamedProject(n);
+      const links = [
+        p.github ? `[GitHub](${p.github})` : null,
+        p.demo ? `[Live demo](${p.demo})` : null,
+      ].filter(Boolean).join(" • ");
+      return `**${p.title}**
+
+${p.description}
+
+**Stack:** ${(p.stack || []).join(", ")}` +
+        (links ? `
+${links}` : "") +
+        `
+
+See the **Projects** section for the rest.`;
+    },
+  },
   {
     keywords: ["hi", "hello", "hey", "hola", "good morning", "good evening", "howdy", "greetings", "sup", "yo"],
     response: () =>
@@ -70,7 +169,7 @@ const intents = [
     },
   },
   {
-    keywords: ["certification", "certifications", "certified", "microsoft certified", "google", "coursera", "ibm", "stanford", "deeplearning"],
+    keywords: ["certification", "certifications", "certified", "microsoft certified", "google certification", "google certificate", "coursera", "deeplearning"],
     response: () => {
       const lines = (certifications || []).map((c) => `• **${c.title}** – ${c.issuer || ""}`);
       const text = lines.length ? lines.join("\n") : `${name} holds several certifications. Check the **Certifications** section.`;
@@ -78,7 +177,7 @@ const intents = [
     },
   },
   {
-    keywords: ["testimonial", "testimonials", "recommendation", "review", "what people say", "what others say", "krish naik", "harsh sinha"],
+    keywords: ["testimonial", "testimonials", "recommendation", "recommendations", "review", "reviews", "people say", "others say", "say about", "feedback", "endorsement", "endorsements", "vouch", "references", "krish naik", "harsh sinha"],
     response: () => {
       const lines = (testimonials || []).map((t) => `**${t.name}** (${t.role || ""}):\n"${(t.quote || "").slice(0, 200)}${(t.quote && t.quote.length > 200) ? "…" : ""}"`);
       const text = lines.length ? lines.join("\n\n") : `See the **Testimonials** section for what others say about ${name}.`;
@@ -86,7 +185,8 @@ const intents = [
     },
   },
   {
-    keywords: ["skill", "tech", "technology", "stack", "tools", "what do you use", "languages", "skills"],
+    keywords: ["skill", "tech", "technology", "stack", "tools", "what do you use", "languages", "skills", "cloud", "know"],
+    test: (n) => ["skill", "tech", "technology", "stack", "tools", "languages", "cloud"].some((k) => matches(n, k)) || skillQuery(n),
     response: () => {
       const list = categories
         .map((cat) => `**${cat.title}:** ${cat.skills.map((s) => s.name).join(", ")}`)
@@ -95,7 +195,7 @@ const intents = [
     },
   },
   {
-    keywords: ["python project", "python projects", "show python"],
+    test: (n) => stackProjectQuery(n, ["python"]),
     response: () => {
       const projects = allProjects.filter((p) => p.stack.includes("Python"));
       const lines = projects.map((p) => `• **${p.title}**`);
@@ -103,7 +203,7 @@ const intents = [
     },
   },
   {
-    keywords: ["sql project", "sql projects", "show sql", "database project"],
+    test: (n) => stackProjectQuery(n, ["sql", "database"]),
     response: () => {
       const projects = allProjects.filter((p) => p.stack.includes("SQL"));
       const lines = projects.map((p) => `• **${p.title}**`);
@@ -111,7 +211,7 @@ const intents = [
     },
   },
   {
-    keywords: ["power bi project", "power bi projects", "power bi dashboard", "powerbi", "show power bi"],
+    test: (n) => stackProjectQuery(n, ["power bi", "powerbi"]),
     response: () => {
       const projects = allProjects.filter((p) => p.stack.includes("Power BI"));
       const lines = projects.map((p) => `• **${p.title}**`);
@@ -119,7 +219,7 @@ const intents = [
     },
   },
   {
-    keywords: ["tableau project", "tableau projects", "tableau dashboard", "tableau visualization", "show tableau"],
+    test: (n) => stackProjectQuery(n, ["tableau"]),
     response: () => {
       const projects = allProjects.filter((p) => p.stack.includes("Tableau"));
       const lines = projects.map((p) => `• **${p.title}**`);
@@ -149,7 +249,7 @@ const intents = [
       `${name} is a **${title}** focused on **${focus}**. ${aboutMeData.intro.description} ${aboutMeData.sections[1].content} Based in **${location}**. ${availability}`,
   },
   {
-    keywords: ["why hire", "why hire me", "why hire mihir", "benefits", "reasons to hire", "why hire you"],
+    keywords: ["why hire", "why hire me", "why hire mihir", "why hire you", "benefits", "reasons to hire", "should we hire", "should i hire", "should they hire", "hire him", "hire mihir", "good fit", "right fit", "stand out"],
     response: () =>
       `Here are the top reasons to hire **${name}**:\n\n` +
       `1. **Analytics & FAANG Impact**: Former **Amazon Data Analyst** with hands-on experience in business intelligence, SQL query tuning, and large-scale data analytics.\n` +
@@ -422,12 +522,22 @@ async function consumeSSEStream(response, onToken) {
  * Get rule-based reply (fallback logic)
  */
 function getDefaultReply(normalized) {
-  for (const { keywords, response } of intents) {
-    const matched = keywords.some((kw) => matches(normalized, kw));
-    if (matched) {
-      const text = response();
-      return { reply: text, source: 'rule-based', messages: [{ role: 'assistant', content: text }] };
+  // Best match, not first match: pick the intent whose matched keyword is most
+  // specific. First-match-wins let generic keywords ("help", "hey", "work")
+  // intercept questions that a later, more specific intent answers properly.
+  let bestIntent = null;
+  let bestScore = 0;
+  for (const intent of intents) {
+    const score = scoreIntent(normalized, intent);
+    if (score > bestScore) {
+      bestScore = score;
+      bestIntent = intent;
     }
+  }
+
+  if (bestIntent) {
+    const text = bestIntent.response(normalized);
+    return { reply: text, source: 'rule-based', messages: [{ role: 'assistant', content: text }] };
   }
   return { reply: FALLBACK_REPLY, source: 'rule-based', messages: [{ role: 'assistant', content: FALLBACK_REPLY }] };
 }
